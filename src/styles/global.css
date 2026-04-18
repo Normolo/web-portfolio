@@ -167,6 +167,9 @@ pre code { background: none; padding: 0; }
   font-weight: 500;
   line-height: 1;
   transition: border-color 0.15s, color 0.15s, transform 0.15s;
+  cursor: pointer;
+  appearance: none;
+  font-family: inherit;
 }
 
 .contact-link:hover {
@@ -198,6 +201,28 @@ pre code { background: none; padding: 0; }
   font-size: 0.72rem;
   font-weight: 700;
   border: 1px solid currentColor;
+}
+
+.contact-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.25rem;
+  transform: translate(-50%, 10px);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--surface) 92%, black);
+  color: var(--text);
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s, transform 0.18s;
+}
+
+.contact-toast.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
 .home-sections {
