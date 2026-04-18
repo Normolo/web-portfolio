@@ -23,19 +23,21 @@ const photos = (await getCollection('photos', ({ data }) => !data.draft))
     <section class="contact-block">
       <h2>Contact</h2>
       <p>If you would like to connect regarding opportunities, projects, or collaboration, please reach out using one of the channels below.</p>
-      <p>
+      <div class="contact-actions">
         <a
-          class="section-link"
+          class="contact-link linkedin"
           href="https://www.linkedin.com/in/benjamin-borg-0922722a8/"
           target="_blank"
           rel="noopener noreferrer"
         >
-          LinkedIn Profile
+          <span class="contact-icon" aria-hidden="true">in</span>
+          LinkedIn
         </a>
-      </p>
-      <p>
-        <a class="section-link" href="mailto:me@b-borg.net">Email me@b-borg.net</a>
-      </p>
+        <a class="contact-link email" href="mailto:me@b-borg.net">
+          <span class="contact-icon" aria-hidden="true">@</span>
+          Email
+        </a>
+      </div>
     </section>
   </div>
 
