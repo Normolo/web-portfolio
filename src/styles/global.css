@@ -116,12 +116,6 @@ pre code { background: none; padding: 0; }
   display: block;
 }
 
-.photo-card .caption {
-  margin-top: 0.5rem;
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
 .hero {
   padding: 3rem 0 2rem;
   border-bottom: 1px solid var(--border);
@@ -142,6 +136,15 @@ pre code { background: none; padding: 0; }
   color: var(--muted);
   font-size: 1.1rem;
   margin-top: 0.5rem;
+}
+
+.contact-block {
+  margin-top: 1.5rem;
+}
+
+.contact-block h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
 }
 
 .home-sections {

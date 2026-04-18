@@ -18,7 +18,6 @@ const categories = [...new Set(photos.map(p => p.data.category))];
         {photos.filter(p => p.data.category === cat).map(p => (
           <a href={`/photography/${p.id}`} class="photo-card" style="text-decoration: none; color: inherit;">
             <img src={p.data.cover} alt={p.data.title} loading="lazy" />
-            <p class="caption">{p.data.title}</p>
           </a>
         ))}
       </div>

@@ -20,19 +20,23 @@ const photos = (await getCollection('photos', ({ data }) => !data.draft))
     />
     <h1>Hey, I'm Benjamin Borg 👋</h1>
     <p class="subtitle">Mathematics and CS student working part-time in cutting-edge cybersecurity, aiming to pursue a career in quantum computer security.</p>
-    <p>
-      <a
-        class="section-link"
-        href="https://www.linkedin.com/in/benjamin-borg-0922722a8/"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Connect on LinkedIn
-      </a>
-    </p>
-    <p>
-      <a class="section-link" href="mailto:me@b-borg.net">Email: me@b-borg.net</a>
-    </p>
+    <section class="contact-block">
+      <h2>Contact</h2>
+      <p>If you would like to connect regarding opportunities, projects, or collaboration, please reach out using one of the channels below.</p>
+      <p>
+        <a
+          class="section-link"
+          href="https://www.linkedin.com/in/benjamin-borg-0922722a8/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          LinkedIn Profile
+        </a>
+      </p>
+      <p>
+        <a class="section-link" href="mailto:me@b-borg.net">Email me@b-borg.net</a>
+      </p>
+    </section>
   </div>
 
   <div class="home-sections">
@@ -66,7 +70,6 @@ const photos = (await getCollection('photos', ({ data }) => !data.draft))
         {photos.map(p => (
           <a href={`/photography/${p.id}`} class="photo-card" style="text-decoration: none; color: inherit;">
             <img src={p.data.cover} alt={p.data.title} loading="lazy" />
-            <p class="caption">{p.data.title}</p>
           </a>
         ))}
       </div>
