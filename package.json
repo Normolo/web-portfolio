@@ -1,7 +1,7 @@
 {
   "name": "web-portfolio",
   "version": "1.0.0",
-  "description": "Personal portfolio — IT projects & photography",
+  "description": "Personal portfolio — projects & photography",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
