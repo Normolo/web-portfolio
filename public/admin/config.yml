@@ -2,6 +2,7 @@ backend:
   name: github
   repo: Normolo/web-portfolio
   branch: main
+  site_domain: b-borg.netlify.app
 
 media_folder: public/photos
 public_folder: /photos

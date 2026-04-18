@@ -46,6 +46,7 @@ This repo now includes **Decap CMS** at `/admin` (files in `public/admin/`) so y
 2. In `public/admin/config.yml`, ensure:
    - `backend.repo` is your repository (`Normolo/web-portfolio`)
    - `backend.branch` is your publishing branch (currently `main`)
+   - `backend.site_domain` is your Netlify subdomain (for example `b-borg.netlify.app`) so custom domains like `b-borg.net` don’t trigger Netlify auth `Not Found`
 3. Configure Decap authentication for GitHub (OAuth provider) in your hosting environment.
 
 ### Usage
