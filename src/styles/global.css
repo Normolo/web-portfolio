@@ -44,9 +44,43 @@ header .logo {
   letter-spacing: 0.03em;
 }
 
-nav { display: flex; gap: 1.5rem; }
+nav {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
 nav a { color: var(--muted); font-size: 0.9rem; }
 nav a:hover, nav a[aria-current="page"] { color: var(--text); text-decoration: none; }
+
+nav .nav-home {
+  width: 2.1rem;
+  height: 2.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--surface) 90%, black);
+  color: var(--text);
+  transition: border-color 0.15s, color 0.15s, transform 0.15s;
+}
+
+nav .nav-home svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+nav .nav-home:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+nav .nav-home[aria-current="page"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
 
 main {
   flex: 1;
