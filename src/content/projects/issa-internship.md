@@ -22,4 +22,4 @@ I worked with Mr Connor Sant Fournier and Prof. Jackson Said, starting with foun
 
 ## Outcome
 
-This internship strengthened my programming and mathematical skills, and confirmed my interest in exoplanet research and a long-term career in space sciences.
+This internship strengthened my programming and mathematical skills.
