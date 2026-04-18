@@ -98,6 +98,7 @@ const photos = (await getCollection('photos', ({ data }) => !data.draft))
       tempInput.style.left = '-9999px';
       document.body.appendChild(tempInput);
       tempInput.select();
+      // Deprecated API used only as fallback when Clipboard API is unavailable.
       const copied = document.execCommand('copy');
       document.body.removeChild(tempInput);
       return copied;
