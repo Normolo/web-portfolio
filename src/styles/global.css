@@ -131,7 +131,7 @@ pre code { background: none; padding: 0; }
 .hero .profile-photo {
   width: 120px;
   height: 120px;
-  border-radius: 999px;
+  border-radius: 50%;
   object-fit: cover;
   display: block;
   margin-bottom: 1rem;
