@@ -35,9 +35,5 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <footer>
       <p>© <span id="copyright-year">{new Date().getFullYear()}</span> Benjamin Borg · Built with <a href="https://astro.build">Astro</a> · Hosted on <a href="https://pages.cloudflare.com">Cloudflare Pages</a></p>
     </footer>
-    <script is:inline>
-      const yearEl = document.getElementById('copyright-year');
-      if (yearEl) yearEl.textContent = String(new Date().getFullYear());
-    </script>
   </body>
 </html>
