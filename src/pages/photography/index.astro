@@ -1,0 +1,27 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const photos = (await getCollection('photos', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const categories = [...new Set(photos.map(p => p.data.category))];
+---
+<Layout title="Photography — Normolo" description="Hobbyist photography — landscapes, street, and more.">
+  <h1>Photography</h1>
+  <p style="color: var(--muted); margin-top: 0.25rem;">A collection of photos I'm proud of.</p>
+
+  {categories.map(cat => (
+    <section style="margin-top: 2.5rem;">
+      <h2 style="margin-top: 0;">{cat}</h2>
+      <div class="photo-grid">
+        {photos.filter(p => p.data.category === cat).map(p => (
+          <a href={`/photography/${p.id}`} class="photo-card" style="text-decoration: none; color: inherit;">
+            <img src={p.data.cover} alt={p.data.title} loading="lazy" />
+            <p class="caption">{p.data.title}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+  ))}
+</Layout>

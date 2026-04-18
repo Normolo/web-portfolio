@@ -1,1 +1,46 @@
 # web-portfolio
+
+Personal portfolio site built with [Astro](https://astro.build) and deployed on [Cloudflare Pages](https://pages.cloudflare.com).  
+Two sections: **IT Projects** and **Photography**.
+
+## Local development
+
+```bash
+npm install
+npm run dev      # starts dev server at http://localhost:4321
+```
+
+## Build
+
+```bash
+npm run build    # outputs static files to dist/
+npm run preview  # preview the production build locally
+```
+
+## Content
+
+All content lives in `src/content/`:
+
+| Folder | Description |
+|---|---|
+| `src/content/projects/` | IT project write-ups (Markdown) |
+| `src/content/photos/` | Photography entries (Markdown + cover image path) |
+
+Add a new `.md` file to either folder to create a new entry. See existing files for the required frontmatter fields.
+
+**Cover images** for photos go in `public/photos/` and are referenced as `/photos/filename.jpg` in the `cover` frontmatter field.
+
+## Deploy to Cloudflare Pages
+
+1. Push this repo to GitHub.
+2. In the [Cloudflare Pages dashboard](https://dash.cloudflare.com/?to=/:account/pages), click **Create a project** → **Connect to Git**.
+3. Select this repo.
+4. Set:
+   - **Build command**: `npm run build`
+   - **Build output directory**: `dist`
+   - **Node.js version**: `20` (environment variable `NODE_VERSION=20`)
+5. Click **Save and Deploy**.
+
+Every push to `main` will trigger a new deployment automatically.
+
+> Update the `site` field in `astro.config.mjs` with your Cloudflare Pages URL once it's assigned.

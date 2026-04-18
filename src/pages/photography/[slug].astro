@@ -1,0 +1,33 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const photos = await getCollection('photos', ({ data }) => !data.draft);
+  return photos.map(p => ({ params: { slug: p.id }, props: { entry: p } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const { title, description, date, cover, category } = entry.data;
+---
+<Layout title={`${title} — Normolo Photography`} description={description ?? title}>
+  <a class="back" href="/photography">← Back to gallery</a>
+
+  <article>
+    <div class="meta">
+      {category} · {date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long' })}
+    </div>
+    <h1>{title}</h1>
+
+    <img
+      src={cover}
+      alt={title}
+      style="width: 100%; max-height: 520px; object-fit: cover; border-radius: var(--radius); margin: 1rem 0 1.5rem;"
+    />
+
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+</Layout>

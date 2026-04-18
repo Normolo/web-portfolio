@@ -1,0 +1,39 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description = 'Personal portfolio — IT projects & photography' } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  </head>
+  <body>
+    <header>
+      <a href="/" class="logo">Normolo</a>
+      <nav>
+        <a href="/projects" aria-current={Astro.url.pathname.startsWith('/projects') ? 'page' : undefined}>IT Projects</a>
+        <a href="/photography" aria-current={Astro.url.pathname.startsWith('/photography') ? 'page' : undefined}>Photography</a>
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer>
+      <p>© {new Date().getFullYear()} Normolo · Built with <a href="https://astro.build">Astro</a> · Hosted on <a href="https://pages.cloudflare.com">Cloudflare Pages</a></p>
+    </footer>
+  </body>
+</html>
