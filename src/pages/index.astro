@@ -19,7 +19,7 @@ const photos = (await getCollection('photos', ({ data }) => !data.draft))
       loading="eager"
     />
     <h1>Hey, I'm Benjamin Borg 👋</h1>
-    <p class="subtitle">Mathemathics and CS student working part-time in cutting edge Cybersecurity aiming to pursue a career in Quantum Computer security</p>
+    <p class="subtitle">Mathematics and CS student working part-time in cutting-edge cybersecurity, aiming to pursue a career in quantum computer security.</p>
     <p>
       <a
         class="section-link"
@@ -33,9 +33,9 @@ const photos = (await getCollection('photos', ({ data }) => !data.draft))
   </div>
 
   <div class="home-sections">
-    <!-- IT Projects -->
+    <!-- Projects -->
     <section class="home-section">
-      <h2>Recent IT Projects</h2>
+      <h2>Recent Projects</h2>
       <p style="color: var(--muted); font-size: 0.9rem;">A selection of things I've built or tinkered with.</p>
       <div class="card-grid">
         {projects.map(p => (

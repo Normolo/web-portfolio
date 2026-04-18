@@ -5,7 +5,7 @@ interface Props {
   title: string;
   description?: string;
 }
-const { title, description = 'Personal portfolio — IT projects & photography' } = Astro.props;
+const { title, description = 'Personal portfolio — projects & photography' } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 <!doctype html>
@@ -23,7 +23,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <header>
       <a href="/" class="logo">Benjamin Borg</a>
       <nav>
-        <a href="/projects" aria-current={Astro.url.pathname.startsWith('/projects') ? 'page' : undefined}>IT Projects</a>
+        <a href="/projects" aria-current={Astro.url.pathname.startsWith('/projects') ? 'page' : undefined}>Projects</a>
         <a href="/photography" aria-current={Astro.url.pathname.startsWith('/photography') ? 'page' : undefined}>Photography</a>
       </nav>
     </header>
