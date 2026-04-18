@@ -1,3 +1,5 @@
-[build]
-  command = "npm run build"
-  publish = "dist"
+name = "web-portfolio"
+compatibility_date = "2026-04-18"
+
+[assets]
+directory = "./dist"

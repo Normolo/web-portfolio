@@ -33,7 +33,7 @@ Add a new `.md` file to either folder to create a new entry. See existing files 
 ## Deploy to Cloudflare Pages
 
 1. Push this repo to GitHub.
-2. In the [Cloudflare Pages dashboard](https://dash.cloudflare.com/?to=/:account/pages), click **Create a project** → **Connect to Git**.
+2. In the [Cloudflare dashboard](https://dash.cloudflare.com), go to **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
 3. Select this repo.
 4. Set:
    - **Build command**: `npm run build`
@@ -42,5 +42,7 @@ Add a new `.md` file to either folder to create a new entry. See existing files 
 5. Click **Save and Deploy**.
 
 Every push to `main` will trigger a new deployment automatically.
+
+The `wrangler.toml` in this repo is used for **Workers Assets** deployments (`wrangler versions upload`). It points `[assets] directory` at `./dist` — run `npm run build` first, then `npx wrangler deploy`.
 
 > Update the `site` field in `astro.config.mjs` with your Cloudflare Pages URL once it's assigned.
