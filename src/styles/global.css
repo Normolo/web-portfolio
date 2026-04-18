@@ -9,6 +9,9 @@
   --muted: #888;
   --accent: #6ee7b7;   /* teal — change freely */
   --accent2: #f9a8d4;  /* pink for photography section */
+  --surface-fallback: #1f1f1f;
+  --surface-fallback-hover: #222;
+  --surface-fallback-active: #202020;
   --radius: 6px;
   --max-w: 860px;
 }
@@ -30,11 +33,12 @@ a:hover { text-decoration: underline; }
 header {
   border-bottom: 1px solid var(--border);
   padding: 1rem 1.5rem;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
-  flex-wrap: wrap;
+  background: var(--bg);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
 }
 
 header .logo {
@@ -42,11 +46,76 @@ header .logo {
   font-weight: 700;
   color: var(--text);
   letter-spacing: 0.03em;
+  justify-self: start;
+  transition: color 0.15s;
 }
 
-nav { display: flex; gap: 1.5rem; }
+header .logo:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  justify-self: end;
+}
+
 nav a { color: var(--muted); font-size: 0.9rem; }
-nav a:hover, nav a[aria-current="page"] { color: var(--text); text-decoration: none; }
+nav a {
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  transition: color 0.15s, background-color 0.15s;
+}
+nav a:hover, nav a[aria-current="page"] {
+  color: var(--text);
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nav-home {
+  width: 2.1rem;
+  height: 2.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-fallback);
+  background: color-mix(in oklab, var(--surface) 90%, black);
+  color: var(--text);
+  box-shadow: 0 0 0 0 rgba(110, 231, 183, 0);
+  transition: border-color 0.15s, color 0.15s, transform 0.15s, background 0.15s, box-shadow 0.15s;
+  justify-self: center;
+}
+
+.nav-home svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.nav-home:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+  background: var(--surface-fallback-hover);
+  background: color-mix(in oklab, var(--surface) 76%, black);
+  text-decoration: none;
+}
+
+.nav-home[aria-current="page"] {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--surface-fallback-active);
+  background: color-mix(in oklab, var(--surface) 80%, black);
+}
+
+.nav-home:focus-visible,
+nav a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(110, 231, 183, 0.45);
+}
 
 main {
   flex: 1;
@@ -260,3 +329,18 @@ pre code { background: none; padding: 0; }
 
 .back { display: inline-block; color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem; }
 .back:hover { color: var(--text); text-decoration: none; }
+
+@media (max-width: 720px) {
+  header {
+    grid-template-columns: auto auto;
+  }
+
+  nav {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .nav-home {
+    justify-self: end;
+  }
+}

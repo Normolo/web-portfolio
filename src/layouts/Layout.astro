@@ -22,6 +22,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   <body>
     <header>
       <a href="/" class="logo">Benjamin Borg</a>
+      <a href="/" class="nav-home" aria-label="Home" aria-current={Astro.url.pathname === '/' ? 'page' : undefined}>
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M3 10.8L12 3l9 7.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M6.5 10.2V21h11V10.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </a>
       <nav>
         <a href="/projects" aria-current={Astro.url.pathname.startsWith('/projects') ? 'page' : undefined}>Projects</a>
         <a href="/photography" aria-current={Astro.url.pathname.startsWith('/photography') ? 'page' : undefined}>Photography</a>
