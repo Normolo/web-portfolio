@@ -30,6 +30,20 @@ Add a new `.md` file to either folder to create a new entry. See existing files 
 
 **Cover images** for photos go in `public/photos/` and are referenced as `/photos/filename.jpg` in the `cover` frontmatter field.
 
+## Local bulk photo import (no third-party app)
+
+If you want easy bulk uploads without Google Drive integration:
+
+1. Copy photos into `public/photos/`
+2. Run:
+
+```bash
+npm run photos:import
+```
+
+This creates missing Markdown entries in `src/content/photos/` for any image that does not already have a matching `cover` path.
+Use `PHOTO_DEFAULT_CATEGORY` to set the generated category (default: `General`).
+
 ## Optional: Automatic photo sync from Google Drive
 
 This repo includes a GitHub Actions workflow at `.github/workflows/sync-photos-from-drive.yml` that can automatically:
