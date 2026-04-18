@@ -30,31 +30,6 @@ Add a new `.md` file to either folder to create a new entry. See existing files 
 
 **Cover images** for photos go in `public/photos/` and are referenced as `/photos/filename.jpg` in the `cover` frontmatter field.
 
-## CMS for easy edits (recommended simpler path)
-
-This repo now includes **Decap CMS** at `/admin` (files in `public/admin/`) so you can edit markdown content in a browser and commit back to GitHub.
-
-### What this gives you
-
-- Edit `src/content/projects/*.md` and `src/content/photos/*.md` without touching code
-- Upload/select images into `public/photos/`
-- Use the existing `draft` field to publish/unpublish entries (for example, keeping ISSA as the only visible project)
-
-### Setup
-
-1. Keep `public/admin/index.html` and `public/admin/config.yml` in the repo.
-2. In `public/admin/config.yml`, ensure:
-   - `backend.repo` is your repository (`Normolo/web-portfolio`)
-   - `backend.branch` is your publishing branch (currently `main`)
-   - `backend.site_domain` is your Netlify subdomain (for example `b-borg.netlify.app`) so custom domains like `b-borg.net` don’t trigger Netlify auth `Not Found`
-3. Configure Decap authentication for GitHub (OAuth provider) in your hosting environment.
-
-### Usage
-
-- Open `/admin`
-- Sign in with GitHub
-- Edit Projects/Photos entries and save/publish
-
 ## Optional: Automatic photo sync from Google Drive
 
 This repo includes a GitHub Actions workflow at `.github/workflows/sync-photos-from-drive.yml` that can automatically:
