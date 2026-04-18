@@ -12,14 +12,30 @@ const photos = (await getCollection('photos', ({ data }) => !data.draft))
 ---
 <Layout title="Benjamin Borg — Portfolio">
   <div class="hero">
+    <img
+      class="profile-photo"
+      src="https://github.com/user-attachments/assets/58d44361-7278-401f-a9c1-f78b2f623cd7"
+      alt="Benjamin Borg"
+      loading="eager"
+    />
     <h1>Hey, I'm Benjamin Borg 👋</h1>
-    <p class="subtitle">IT enthusiast & hobbyist photographer.</p>
+    <p class="subtitle">Mathematics and CS student working part-time in cutting-edge cybersecurity, aiming to pursue a career in quantum computer security.</p>
+    <p>
+      <a
+        class="section-link"
+        href="https://www.linkedin.com/in/benjamin-borg-0922722a8/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Connect on LinkedIn
+      </a>
+    </p>
   </div>
 
   <div class="home-sections">
-    <!-- IT Projects -->
+    <!-- Projects -->
     <section class="home-section">
-      <h2>Recent IT Projects</h2>
+      <h2>Recent Projects</h2>
       <p style="color: var(--muted); font-size: 0.9rem;">A selection of things I've built or tinkered with.</p>
       <div class="card-grid">
         {projects.map(p => (

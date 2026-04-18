@@ -1,0 +1,40 @@
+backend:
+  name: github
+  repo: Normolo/web-portfolio
+  branch: main
+
+media_folder: public/photos
+public_folder: /photos
+
+collections:
+  - name: projects
+    label: Projects
+    folder: src/content/projects
+    create: true
+    extension: md
+    format: frontmatter
+    slug: '{{slug}}'
+    fields:
+      - { name: title, label: Title, widget: string }
+      - { name: description, label: Description, widget: text }
+      - { name: date, label: Date, widget: datetime, format: 'YYYY-MM-DD', time_format: false }
+      - { name: tags, label: Tags, widget: list, required: false }
+      - { name: repoUrl, label: Repository URL, widget: string, required: false }
+      - { name: liveUrl, label: Live URL, widget: string, required: false }
+      - { name: draft, label: Draft, widget: boolean, default: false }
+      - { name: body, label: Body, widget: markdown }
+  - name: photos
+    label: Photos
+    folder: src/content/photos
+    create: true
+    extension: md
+    format: frontmatter
+    slug: '{{slug}}'
+    fields:
+      - { name: title, label: Title, widget: string }
+      - { name: description, label: Description, widget: text, required: false }
+      - { name: date, label: Date, widget: datetime, format: 'YYYY-MM-DD', time_format: false }
+      - { name: cover, label: Cover Image, widget: image }
+      - { name: category, label: Category, widget: string, default: General }
+      - { name: draft, label: Draft, widget: boolean, default: false }
+      - { name: body, label: Body, widget: markdown, required: false }
