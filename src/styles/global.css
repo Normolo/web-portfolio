@@ -44,6 +44,12 @@ header .logo {
   letter-spacing: 0.03em;
 }
 
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
 nav {
   display: flex;
   align-items: center;
@@ -53,7 +59,7 @@ nav {
 nav a { color: var(--muted); font-size: 0.9rem; }
 nav a:hover, nav a[aria-current="page"] { color: var(--text); text-decoration: none; }
 
-nav .nav-home {
+.nav-home {
   width: 2.1rem;
   height: 2.1rem;
   display: inline-flex;
@@ -63,23 +69,26 @@ nav .nav-home {
   border-radius: 999px;
   background: color-mix(in oklab, var(--surface) 90%, black);
   color: var(--text);
-  transition: border-color 0.15s, color 0.15s, transform 0.15s;
+  transition: border-color 0.15s, color 0.15s, transform 0.15s, background 0.15s;
 }
 
-nav .nav-home svg {
+.nav-home svg {
   width: 1rem;
   height: 1rem;
 }
 
-nav .nav-home:hover {
+.nav-home:hover {
   border-color: var(--accent);
   color: var(--accent);
   transform: translateY(-1px);
+  background: color-mix(in oklab, var(--surface) 76%, black);
+  text-decoration: none;
 }
 
-nav .nav-home[aria-current="page"] {
+.nav-home[aria-current="page"] {
   border-color: var(--accent);
   color: var(--accent);
+  background: color-mix(in oklab, var(--surface) 80%, black);
 }
 
 main {
