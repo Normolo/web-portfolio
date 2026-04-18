@@ -34,6 +34,8 @@ header {
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 1rem;
+  background: rgba(15, 15, 15, 0.92);
+  backdrop-filter: blur(6px);
 }
 
 header .logo {
@@ -42,6 +44,12 @@ header .logo {
   color: var(--text);
   letter-spacing: 0.03em;
   justify-self: start;
+  transition: color 0.15s;
+}
+
+header .logo:hover {
+  color: var(--accent);
+  text-decoration: none;
 }
 
 nav {
@@ -52,7 +60,16 @@ nav {
 }
 
 nav a { color: var(--muted); font-size: 0.9rem; }
-nav a:hover, nav a[aria-current="page"] { color: var(--text); text-decoration: none; }
+nav a {
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  transition: color 0.15s, background-color 0.15s;
+}
+nav a:hover, nav a[aria-current="page"] {
+  color: var(--text);
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.06);
+}
 
 .nav-home {
   width: 2.1rem;
@@ -62,9 +79,11 @@ nav a:hover, nav a[aria-current="page"] { color: var(--text); text-decoration: n
   justify-content: center;
   border: 1px solid var(--border);
   border-radius: 999px;
+  background: #1f1f1f;
   background: color-mix(in oklab, var(--surface) 90%, black);
   color: var(--text);
-  transition: border-color 0.15s, color 0.15s, transform 0.15s, background 0.15s;
+  box-shadow: 0 0 0 0 rgba(110, 231, 183, 0);
+  transition: border-color 0.15s, color 0.15s, transform 0.15s, background 0.15s, box-shadow 0.15s;
   justify-self: center;
 }
 
@@ -77,6 +96,7 @@ nav a:hover, nav a[aria-current="page"] { color: var(--text); text-decoration: n
   border-color: var(--accent);
   color: var(--accent);
   transform: translateY(-1px);
+  background: #222;
   background: color-mix(in oklab, var(--surface) 76%, black);
   text-decoration: none;
 }
@@ -84,7 +104,14 @@ nav a:hover, nav a[aria-current="page"] { color: var(--text); text-decoration: n
 .nav-home[aria-current="page"] {
   border-color: var(--accent);
   color: var(--accent);
+  background: #202020;
   background: color-mix(in oklab, var(--surface) 80%, black);
+}
+
+.nav-home:focus-visible,
+nav a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(110, 231, 183, 0.45);
 }
 
 main {
