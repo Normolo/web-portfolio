@@ -7,7 +7,7 @@ const photos = (await getCollection('photos', ({ data }) => !data.draft))
 
 const categories = [...new Set(photos.map(p => p.data.category))];
 ---
-<Layout title="Photography — Normolo" description="Hobbyist photography — landscapes, street, and more.">
+<Layout title="Photography — Benjamin Borg" description="Hobbyist photography — landscapes, street, and more.">
   <h1>Photography</h1>
   <p style="color: var(--muted); margin-top: 0.25rem;">A collection of photos I'm proud of.</p>
 
