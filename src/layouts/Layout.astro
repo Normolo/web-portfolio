@@ -18,11 +18,12 @@ const latestUpdateTimestamp = [...projects, ...photos]
   .map((entry) => entry.data.date.getTime())
   .reduce((latest, current) => Math.max(latest, current), 0);
 
-const latestUpdate = latestUpdateTimestamp ? new Date(latestUpdateTimestamp) : new Date();
+const latestUpdate = latestUpdateTimestamp ? new Date(latestUpdateTimestamp) : null;
 
-const formatTimeSince = (date: Date) => {
+const formatTimeSince = (date: Date | null) => {
+  if (!date) return 'no updates yet';
   const now = new Date();
-  const diffMs = Date.now() - date.getTime();
+  const diffMs = now.getTime() - date.getTime();
   const diffDays = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
 
   if (diffDays < 1) return 'today';
