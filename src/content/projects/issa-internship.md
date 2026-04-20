@@ -4,6 +4,7 @@ description: "A summer internship at the Institute of Space Sciences and Astrono
 date: 2024-09-01
 tags: ["Python", "Data Analysis", "Space Sciences", "Simulation", "Exoplanets"]
 liveUrl: "https://www.um.edu.mt/newspoint/news/2024/09/experience-interning-issa"
+image: "https://github.com/user-attachments/assets/a619296b-7354-4176-993c-2ad7bb5c601d"
 draft: false
 ---
 
