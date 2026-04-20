@@ -10,7 +10,7 @@ const photos = (await getCollection('photos', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 3);
 ---
-<Layout title="Benjamin Borg — Portfolio">
+<Layout title="Benjamin Borg">
   <div class="hero">
     <img
       class="profile-photo"
