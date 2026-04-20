@@ -51,10 +51,16 @@ const formatTimeSince = (date: Date | null) => {
 const env = import.meta.env as Record<string, string | undefined>;
 const SHA_REGEX = /^[0-9a-f]{40}$/i;
 const BRANCH_REGEX = /^[A-Za-z0-9._/-]+$/;
+const GIT_EXEC_OPTIONS = {
+  cwd: process.cwd(),
+  encoding: 'utf8',
+  stdio: ['ignore', 'pipe', 'ignore'] as const,
+  timeout: 2000,
+};
 
 const readGitFullSha = () => {
   try {
-    const sha = execSync('git rev-parse HEAD', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    const sha = execSync('git rev-parse HEAD', GIT_EXEC_OPTIONS).trim();
     return SHA_REGEX.test(sha) ? sha : undefined;
   } catch {
     return undefined;
@@ -63,7 +69,7 @@ const readGitFullSha = () => {
 
 const readGitBranch = () => {
   try {
-    const branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    const branch = execSync('git rev-parse --abbrev-ref HEAD', GIT_EXEC_OPTIONS).trim();
     return BRANCH_REGEX.test(branch) ? branch : undefined;
   } catch {
     return undefined;
@@ -84,7 +90,7 @@ const branchName =
   env.GITHUB_REF_NAME?.replace(/^refs\/heads\//, '') ??
   readGitBranch();
 
-const versionId = prNumber ? `PR #${prNumber} · ${shortCommitSha}` : `${branchName ?? 'detached'} · ${shortCommitSha}`;
+const versionId = prNumber ? `PR #${prNumber} · ${shortCommitSha}` : `${branchName ?? 'unknown-branch'} · ${shortCommitSha}`;
 ---
 <!doctype html>
 <html lang="en">
