@@ -39,7 +39,7 @@ const HOME_PHOTO_SIZES = `(min-width: 960px) 390px, (min-width: 520px) calc(50vw
       loading="eager"
       decoding="async"
       fetchpriority="high"
-      srcset={profilePhotoSrcSet ?? undefined}
+      srcset={profilePhotoSrcSet}
       sizes="120px"
       width="120"
       height="120"
@@ -93,7 +93,7 @@ const HOME_PHOTO_SIZES = `(min-width: 960px) 390px, (min-width: 520px) calc(50vw
                   loading="lazy"
                   decoding="async"
                   fetchpriority="low"
-                  srcset={projectPreviewSrcSets.get(p.id) ?? undefined}
+                  srcset={projectPreviewSrcSets.get(p.id)}
                   sizes="72px"
                   width="72"
                   height="72"
@@ -135,7 +135,7 @@ const HOME_PHOTO_SIZES = `(min-width: 960px) 390px, (min-width: 520px) calc(50vw
                 )}
                 <img
                   src={p.data.cover}
-                  srcset={homePhotoSrcSets.get(p.id) ?? undefined}
+                  srcset={homePhotoSrcSets.get(p.id)}
                   sizes={HOME_PHOTO_SIZES}
                   alt={p.data.title}
                   loading="lazy"

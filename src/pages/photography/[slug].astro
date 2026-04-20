@@ -28,7 +28,7 @@ const coverSrcSet = await buildSrcSet(cover, [600, 812, 1200]);
       loading="eager"
       decoding="async"
       fetchpriority="high"
-      srcset={coverSrcSet ?? undefined}
+      srcset={coverSrcSet}
       sizes={`(min-width: ${CONTENT_MAX_VIEWPORT}px) 812px, calc(100vw - 3rem)`}
       style="width: 100%; max-height: 520px; object-fit: cover; border-radius: var(--radius); margin: 1rem 0 1.5rem;"
     />
