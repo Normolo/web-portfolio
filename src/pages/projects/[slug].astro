@@ -9,7 +9,7 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
-const { title, description, date, tags, repoUrl, liveUrl } = entry.data;
+const { title, description, date, tags, repoUrl, liveUrl, image } = entry.data;
 ---
 <Layout title={`${title} — Benjamin Borg`} description={description}>
   <a class="back" href="/projects">← Back to projects</a>
@@ -33,6 +33,17 @@ const { title, description, date, tags, repoUrl, liveUrl } = entry.data;
     )}
 
     <div class="prose">
+      {image && (
+        <figure style="margin: 0 0 2rem;">
+          <img
+            src={image}
+            alt={title}
+            loading="lazy"
+            decoding="async"
+            style="width: 100%; border-radius: var(--radius); display: block;"
+          />
+        </figure>
+      )}
       <Content />
     </div>
   </article>
