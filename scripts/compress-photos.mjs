@@ -13,10 +13,15 @@ const thumbsDir = path.join(photosDir, '_thumbs');
 const THUMB_WIDTH = 640;
 
 const supportedExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif', '.tif', '.tiff']);
-const quality = Number(process.env.PHOTO_COMPRESS_QUALITY ?? '82');
-const webpQuality = Number(process.env.PHOTO_COMPRESS_WEBP_QUALITY ?? String(quality));
-const avifQuality = Number(process.env.PHOTO_COMPRESS_AVIF_QUALITY ?? '52');
-const thumbQuality = Number(process.env.PHOTO_COMPRESS_THUMB_QUALITY ?? '75');
+function parseQuality(envValue, defaultValue) {
+  const n = Number(envValue);
+  return Number.isFinite(n) ? Math.round(n) : defaultValue;
+}
+
+const quality = parseQuality(process.env.PHOTO_COMPRESS_QUALITY, 82);
+const webpQuality = parseQuality(process.env.PHOTO_COMPRESS_WEBP_QUALITY, quality);
+const avifQuality = parseQuality(process.env.PHOTO_COMPRESS_AVIF_QUALITY, 52);
+const thumbQuality = parseQuality(process.env.PHOTO_COMPRESS_THUMB_QUALITY, 75);
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -47,13 +52,21 @@ async function generateThumb(name) {
   const thumbPath = path.join(thumbsDir, `${stem}.webp`);
   const sourcePath = path.join(photosDir, name);
 
+  let sourceMtime;
   try {
-    const [sourceStat, thumbStat] = await Promise.all([fs.stat(sourcePath), fs.stat(thumbPath)]);
-    if (thumbStat.mtimeMs >= sourceStat.mtimeMs) {
+    sourceMtime = (await fs.stat(sourcePath)).mtimeMs;
+  } catch {
+    // Source file missing — skip rather than propagate an error.
+    return { name, generated: false };
+  }
+
+  try {
+    const thumbStat = await fs.stat(thumbPath);
+    if (thumbStat.mtimeMs >= sourceMtime) {
       return { name, generated: false };
     }
   } catch {
-    // thumb does not exist yet — fall through to generate
+    // Thumb does not exist yet — fall through to generate.
   }
 
   await sharp(sourcePath, { failOn: 'none' })

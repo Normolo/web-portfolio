@@ -7,6 +7,11 @@ const photos = (await getCollection('photos', ({ data }) => !data.draft))
 
 const categories = [...new Set(photos.map(p => p.data.category))];
 
+// The very first photo in the gallery is the LCP element — load it eagerly.
+// When photos is empty, firstPhotoId is null and no photos are rendered, so the
+// condition `p.id === firstPhotoId` is always false (photo IDs are strings, never null).
+const firstPhotoId = photos[0]?.id ?? null;
+
 function thumbPath(cover: string): string | null {
   if (!cover.startsWith('/photos/')) return null;
   const filename = cover.slice('/photos/'.length);
@@ -34,7 +39,7 @@ function thumbPath(cover: string): string | null {
                     sizes="(min-width: 908px) 276px, (min-width: 520px) calc(50vw - 2rem), calc(100vw - 3rem)"
                   />
                 )}
-                <img src={p.data.cover} alt={p.data.title} loading="lazy" decoding="async" fetchpriority="low" />
+                <img src={p.data.cover} alt={p.data.title} loading={p.id === firstPhotoId ? 'eager' : 'lazy'} decoding="async" fetchpriority={p.id === firstPhotoId ? 'high' : 'low'} />
               </picture>
             </a>
           );
