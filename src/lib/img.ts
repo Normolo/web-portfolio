@@ -1,14 +1,4 @@
-/**
- * Image helpers for responsive image delivery via Cloudflare Image Resizing.
- *
- * In production (Cloudflare Pages), `/cdn-cgi/image/` transforms are applied at
- * the edge — serving the correctly-sized WebP/AVIF instead of the full-resolution
- * original. In local dev the original URL is returned unchanged.
- *
- * Requires the "Image Resizing" feature to be enabled on the Cloudflare account.
- */
-
-const IS_DEV = import.meta.env.DEV;
+import { getImage } from 'astro:assets';
 
 /**
  * The viewport width at which `main` reaches its maximum content width of 860px
@@ -17,37 +7,38 @@ const IS_DEV = import.meta.env.DEV;
  */
 export const CONTENT_MAX_VIEWPORT = 908;
 
-export interface ImgOptions {
-  width: number;
-  quality?: number;
-}
+const srcSetCache = new Map<string, Promise<string | undefined>>();
 
 /**
- * Returns a Cloudflare Image Resizing URL that delivers the image at the
- * requested width in the browser's best-supported format (WebP or AVIF).
- * Falls back to the original URL in local development.
- *
- * - Local paths (e.g. `/photos/foo.jpg`): the leading slash is stripped so the
- *   resulting path is `/cdn-cgi/image/…/photos/foo.jpg`.
- * - Remote URLs (e.g. `https://example.com/img.jpg`): passed through unchanged
- *   after the options segment, e.g. `/cdn-cgi/image/…/https://example.com/img.jpg`.
+ * Generate a responsive srcset via Astro's built-in image pipeline.
+ * Returns undefined when no widths are provided or a transform cannot be produced.
  */
-export function cfImg(src: string, { width, quality = 85 }: ImgOptions): string {
-  if (IS_DEV) return src;
-  // Local paths: strip leading slash — the /cdn-cgi/image/…/path separator provides it.
-  // Remote URLs don't start with '/' so they are passed through unchanged.
-  const imgPath = src.startsWith('/') ? src.slice(1) : src;
-  return `/cdn-cgi/image/width=${width},format=auto,quality=${quality}/${imgPath}`;
-}
+export async function buildSrcSet(src: string, widths: number[], quality = 85): Promise<string | undefined> {
+  if (widths.length === 0) return undefined;
 
-/**
- * Build a `srcset` string with multiple width variants via cfImg.
- * Returns an empty string in dev so the browser falls back to `src`.
- * Always pair with a matching `sizes` attribute.
- */
-export function srcSet(src: string, widths: number[], quality = 85): string {
-  if (IS_DEV) return '';
-  return widths.map(w => `${cfImg(src, { width: w, quality })} ${w}w`).join(', ');
+  const normalizedWidths = [...new Set(widths)].sort((a, b) => a - b);
+  const cacheKey = `${src}|${quality}|${normalizedWidths.join(',')}`;
+  const cached = srcSetCache.get(cacheKey);
+  if (cached) return cached;
+
+  const srcSetPromise = getImage({
+    src,
+    widths: normalizedWidths,
+    quality,
+    format: 'webp',
+    inferSize: true,
+  })
+    .then((image) => image.srcSet.attribute || undefined)
+    .catch((error) => {
+      console.warn(
+        `Could not generate srcset for "${src}". Check Astro image domain allowlists and ensure the source is compatible with Astro transforms.`,
+        error,
+      );
+      return undefined;
+    });
+
+  srcSetCache.set(cacheKey, srcSetPromise);
+  return srcSetPromise;
 }
 
 /**

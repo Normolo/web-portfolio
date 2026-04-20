@@ -1,12 +1,18 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
-import { thumbPath, srcSet, CONTENT_MAX_VIEWPORT } from '../../lib/img';
+import { thumbPath, buildSrcSet, CONTENT_MAX_VIEWPORT } from '../../lib/img';
 
 const photos = (await getCollection('photos', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 const categories = [...new Set(photos.map(p => p.data.category))];
+
+const photoCardSrcSets = new Map(
+  await Promise.all(
+    photos.map(async (p) => [p.id, await buildSrcSet(p.data.cover, [276, 552, 828])] as const),
+  ),
+);
 
 // The very first photo in the gallery is the LCP element — load it eagerly.
 // When photos is empty, firstPhotoId is null and no photos are rendered, so the
@@ -43,7 +49,7 @@ const GALLERY_SIZES = `(min-width: ${CONTENT_MAX_VIEWPORT}px) 276px, (min-width:
                   loading={p.id === firstPhotoId ? 'eager' : 'lazy'}
                   decoding="async"
                   fetchpriority={p.id === firstPhotoId ? 'high' : 'low'}
-                  srcset={srcSet(p.data.cover, [276, 552, 828])}
+                  srcset={photoCardSrcSets.get(p.id)}
                   sizes={GALLERY_SIZES}
                 />
               </picture>

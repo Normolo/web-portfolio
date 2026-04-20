@@ -1,7 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
-import { thumbPath, srcSet, CONTENT_MAX_VIEWPORT } from '../lib/img';
+import { thumbPath, buildSrcSet, CONTENT_MAX_VIEWPORT } from '../lib/img';
+import { PROFILE_PHOTO_SRC } from '../lib/site';
 
 const projects = (await getCollection('projects', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
@@ -11,6 +12,21 @@ const photos = (await getCollection('photos', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 3);
 
+const profilePhotoSrc = PROFILE_PHOTO_SRC;
+const profilePhotoSrcSet = await buildSrcSet(profilePhotoSrc, [120, 240, 360]);
+
+const projectPreviewSrcSets = new Map(
+  await Promise.all(
+    projects.map(async (p) => [p.id, p.data.image ? await buildSrcSet(p.data.image, [72, 144, 216]) : undefined] as const),
+  ),
+);
+
+const homePhotoSrcSets = new Map(
+  await Promise.all(
+    photos.map(async (p) => [p.id, await buildSrcSet(p.data.cover, [390, 640, 828])] as const),
+  ),
+);
+
 // Home page has two columns at ≥960px; each photo-grid section is ~390px wide (1-column grid).
 // At narrower viewports it's full-width, similar to the gallery page.
 const HOME_PHOTO_SIZES = `(min-width: 960px) 390px, (min-width: 520px) calc(50vw - 2rem), calc(100vw - 3rem)`;
@@ -19,12 +35,12 @@ const HOME_PHOTO_SIZES = `(min-width: 960px) 390px, (min-width: 520px) calc(50vw
   <div class="hero">
     <img
       class="profile-photo"
-      src="https://github.com/user-attachments/assets/58d44361-7278-401f-a9c1-f78b2f623cd7"
+      src={profilePhotoSrc}
       alt="Benjamin Borg"
       loading="eager"
       decoding="async"
       fetchpriority="high"
-      srcset={srcSet('https://github.com/user-attachments/assets/58d44361-7278-401f-a9c1-f78b2f623cd7', [120, 240, 360])}
+      srcset={profilePhotoSrcSet}
       sizes="120px"
       width="120"
       height="120"
@@ -78,7 +94,7 @@ const HOME_PHOTO_SIZES = `(min-width: 960px) 390px, (min-width: 520px) calc(50vw
                   loading="lazy"
                   decoding="async"
                   fetchpriority="low"
-                  srcset={srcSet(p.data.image, [72, 144, 216])}
+                  srcset={projectPreviewSrcSets.get(p.id)}
                   sizes="72px"
                   width="72"
                   height="72"
@@ -120,7 +136,7 @@ const HOME_PHOTO_SIZES = `(min-width: 960px) 390px, (min-width: 520px) calc(50vw
                 )}
                 <img
                   src={p.data.cover}
-                  srcset={srcSet(p.data.cover, [390, 640, 828])}
+                  srcset={homePhotoSrcSets.get(p.id)}
                   sizes={HOME_PHOTO_SIZES}
                   alt={p.data.title}
                   loading="lazy"
