@@ -54,7 +54,7 @@ const BRANCH_REGEX = /^[A-Za-z0-9._/-]+$/;
 const GIT_EXEC_OPTIONS = {
   cwd: process.cwd(),
   encoding: 'utf8',
-  stdio: ['ignore', 'pipe', 'ignore'] as const,
+  stdio: ['ignore', 'pipe', 'pipe'] as const,
   timeout: 2000,
 };
 
@@ -81,8 +81,7 @@ const shortCommitSha = fullCommitSha?.slice(0, 7) ?? 'unknown';
 
 const prNumber =
   env.CF_PAGES_PULL_REQUEST_ID ??
-  env.GITHUB_REF?.match(/^refs\/pull\/(\d+)\/(?:head|merge)$/)?.[1] ??
-  env.GITHUB_REF_NAME?.match(/^(\d+)\/(?:head|merge)$/)?.[1];
+  env.GITHUB_REF?.match(/^refs\/pull\/(\d+)\/(?:head|merge)$/)?.[1];
 
 const branchName =
   env.CF_PAGES_BRANCH ??
