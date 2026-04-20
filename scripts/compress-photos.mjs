@@ -8,11 +8,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '..');
 const photosDir = path.join(repoRoot, 'public', 'photos');
+const thumbsDir = path.join(photosDir, '_thumbs');
+
+const THUMB_WIDTH = 640;
 
 const supportedExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif', '.tif', '.tiff']);
 const quality = Number(process.env.PHOTO_COMPRESS_QUALITY ?? '82');
 const webpQuality = Number(process.env.PHOTO_COMPRESS_WEBP_QUALITY ?? String(quality));
 const avifQuality = Number(process.env.PHOTO_COMPRESS_AVIF_QUALITY ?? '52');
+const thumbQuality = Number(process.env.PHOTO_COMPRESS_THUMB_QUALITY ?? '75');
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -35,6 +39,30 @@ function encoderForExt(transformer, ext) {
     return transformer.tiff({ quality: clamp(quality, 1, 100), compression: 'jpeg' });
   }
   return null;
+}
+
+async function generateThumb(name) {
+  const ext = path.extname(name).toLowerCase();
+  const stem = path.basename(name, ext);
+  const thumbPath = path.join(thumbsDir, `${stem}.webp`);
+  const sourcePath = path.join(photosDir, name);
+
+  try {
+    const [sourceStat, thumbStat] = await Promise.all([fs.stat(sourcePath), fs.stat(thumbPath)]);
+    if (thumbStat.mtimeMs >= sourceStat.mtimeMs) {
+      return { name, generated: false };
+    }
+  } catch {
+    // thumb does not exist yet — fall through to generate
+  }
+
+  await sharp(sourcePath, { failOn: 'none' })
+    .rotate()
+    .resize(THUMB_WIDTH, null, { withoutEnlargement: true })
+    .webp({ quality: clamp(thumbQuality, 1, 100), effort: 6 })
+    .toFile(thumbPath);
+
+  return { name, generated: true };
 }
 
 async function listPhotoFiles() {
@@ -68,9 +96,13 @@ async function compressPhoto(name) {
 
 async function main() {
   const photoFiles = await listPhotoFiles();
+  await fs.mkdir(thumbsDir, { recursive: true });
+
   let optimizedCount = 0;
   let skippedCount = 0;
   let bytesSaved = 0;
+  let thumbsGenerated = 0;
+  let thumbsSkipped = 0;
 
   for (const photoFile of photoFiles) {
     try {
@@ -83,7 +115,19 @@ async function main() {
       }
     } catch (error) {
       skippedCount += 1;
-      console.warn(`Skipping ${photoFile}: ${error.message}`);
+      console.warn(`Skipping compression for ${photoFile}: ${error.message}`);
+    }
+
+    try {
+      const thumbResult = await generateThumb(photoFile);
+      if (thumbResult.generated) {
+        thumbsGenerated += 1;
+      } else {
+        thumbsSkipped += 1;
+      }
+    } catch (error) {
+      thumbsSkipped += 1;
+      console.warn(`Skipping thumbnail for ${photoFile}: ${error.message}`);
     }
   }
 
@@ -91,6 +135,7 @@ async function main() {
   console.log(
     `Scanned ${photoFiles.length} files. Optimized ${optimizedCount}, skipped ${skippedCount}, saved ${savedMb} MB (${bytesSaved} bytes).`
   );
+  console.log(`Thumbnails: generated ${thumbsGenerated}, up-to-date ${thumbsSkipped}.`);
 }
 
 main().catch((error) => {
