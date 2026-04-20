@@ -16,7 +16,7 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft))
           {p.data.image && (
             <img
               src={p.data.image}
-              alt={p.data.title}
+              alt={`Cover image for ${p.data.title}`}
               loading="lazy"
               decoding="async"
               style="width: 100%; height: 160px; object-fit: cover; display: block;"
