@@ -30,7 +30,10 @@ export async function buildSrcSet(src: string, widths: number[], quality = 85): 
   })
     .then((image) => image.srcSet.attribute || undefined)
     .catch((error) => {
-      console.warn(`Could not generate srcset for "${src}".`, error);
+      console.warn(
+        `Could not generate srcset for "${src}". Check Astro image domain allowlists and ensure the source is compatible with Astro transforms.`,
+        error,
+      );
       return undefined;
     });
 
