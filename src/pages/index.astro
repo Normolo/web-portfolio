@@ -70,6 +70,7 @@ const photos = (await getCollection('photos', ({ data }) => !data.draft))
                   alt={`Cover image for ${p.data.title}`}
                   loading="lazy"
                   decoding="async"
+                  fetchpriority="low"
                   style="width: 72px; height: 72px; object-fit: cover; border-radius: var(--radius); flex-shrink: 0;"
                 />
               )}

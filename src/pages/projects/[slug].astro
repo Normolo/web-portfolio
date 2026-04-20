@@ -38,8 +38,9 @@ const { title, description, date, tags, repoUrl, liveUrl, image } = entry.data;
           <img
             src={image}
             alt={`Cover image for ${title}`}
-            loading="lazy"
+            loading="eager"
             decoding="async"
+            fetchpriority="high"
             style="width: 100%; border-radius: var(--radius); display: block;"
           />
         </figure>
