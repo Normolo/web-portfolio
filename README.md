@@ -47,6 +47,10 @@ Use `PHOTO_DEFAULT_CATEGORY` to set the generated category (default: `General`).
 Compression runs as a separate command so image optimization does not add overhead to `npm run build`.
 `photos:compress` also generates 640 px-wide WebP thumbnails in `public/photos/_thumbs/` for use as responsive image sources in the gallery.
 
+## Responsive image handling
+
+This site now uses Astro’s built-in image pipeline (`astro:assets` + Sharp) to generate responsive `srcset` values at build time when sources are compatible with Astro transforms.
+
 ## Optional: Automatic photo sync from Google Drive
 
 This repo includes a GitHub Actions workflow at `.github/workflows/sync-photos-from-drive.yml` that can automatically:

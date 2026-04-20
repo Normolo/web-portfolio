@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
-import { srcSet, CONTENT_MAX_VIEWPORT } from '../../lib/img';
+import { buildSrcSet, CONTENT_MAX_VIEWPORT } from '../../lib/img';
 
 export async function getStaticPaths() {
   const photos = await getCollection('photos', ({ data }) => !data.draft);
@@ -11,6 +11,7 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const { title, description, date, cover, category } = entry.data;
+const coverSrcSet = await buildSrcSet(cover, [600, 812, 1200]);
 ---
 <Layout title={`${title} — Benjamin Borg Photography`} description={description ?? title}>
   <a class="back" href="/photography">← Back to gallery</a>
@@ -27,7 +28,7 @@ const { title, description, date, cover, category } = entry.data;
       loading="eager"
       decoding="async"
       fetchpriority="high"
-      srcset={srcSet(cover, [600, 812, 1200])}
+      srcset={coverSrcSet ?? undefined}
       sizes={`(min-width: ${CONTENT_MAX_VIEWPORT}px) 812px, calc(100vw - 3rem)`}
       style="width: 100%; max-height: 520px; object-fit: cover; border-radius: var(--radius); margin: 1rem 0 1.5rem;"
     />

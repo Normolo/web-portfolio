@@ -1,10 +1,16 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
-import { srcSet, CONTENT_MAX_VIEWPORT } from '../../lib/img';
+import { buildSrcSet, CONTENT_MAX_VIEWPORT } from '../../lib/img';
 
 const projects = (await getCollection('projects', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const projectBannerSrcSets = new Map(
+  await Promise.all(
+    projects.map(async (p) => [p.id, p.data.image ? await buildSrcSet(p.data.image, [400, 800]) : undefined] as const),
+  ),
+);
 
 // Card-grid is repeat(auto-fill, minmax(280px, 1fr)) inside 812px content area.
 // Two 280px columns fit comfortably → each card ≈ 396px. One column on narrow screens.
@@ -24,7 +30,7 @@ const CARD_BANNER_SIZES = `(min-width: ${CONTENT_MAX_VIEWPORT}px) 396px, (min-wi
               alt={`Cover image for ${p.data.title}`}
               loading="lazy"
               decoding="async"
-              srcset={srcSet(p.data.image, [400, 800])}
+              srcset={projectBannerSrcSets.get(p.id) ?? undefined}
               sizes={CARD_BANNER_SIZES}
               style="width: 100%; height: 160px; object-fit: cover; display: block;"
             />
