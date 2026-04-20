@@ -1,11 +1,21 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import { thumbPath, srcSet, CONTENT_MAX_VIEWPORT } from '../../lib/img';
 
 const photos = (await getCollection('photos', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 const categories = [...new Set(photos.map(p => p.data.category))];
+
+// The very first photo in the gallery is the LCP element — load it eagerly.
+// When photos is empty, firstPhotoId is null and no photos are rendered, so the
+// condition `p.id === firstPhotoId` is always false (photo IDs are strings, never null).
+const firstPhotoId = photos[0]?.id ?? null;
+
+// Grid column sizes: at ≥908px viewport the content is 812px wide with a 3-column
+// auto-fill (minmax 220px) → each cell ≈ 276px. Below that two or one column.
+const GALLERY_SIZES = `(min-width: ${CONTENT_MAX_VIEWPORT}px) 276px, (min-width: 520px) calc(50vw - 2rem), calc(100vw - 3rem)`;
 ---
 <Layout title="Photography — Benjamin Borg" description="Hobbyist photography — landscapes, street, and more.">
   <h1>Photography</h1>
@@ -15,11 +25,31 @@ const categories = [...new Set(photos.map(p => p.data.category))];
     <section style="margin-top: 2.5rem;">
       <h2 style="margin-top: 0;">{cat}</h2>
       <div class="photo-grid">
-        {photos.filter(p => p.data.category === cat).map(p => (
-          <a href={`/photography/${p.id}`} class="photo-card" style="text-decoration: none; color: inherit;">
-            <img src={p.data.cover} alt={p.data.title} loading="lazy" decoding="async" fetchpriority="low" />
-          </a>
-        ))}
+        {photos.filter(p => p.data.category === cat).map(p => {
+          const thumb = thumbPath(p.data.cover);
+          return (
+            <a href={`/photography/${p.id}`} class="photo-card" style="text-decoration: none; color: inherit;">
+              <picture>
+                {thumb && (
+                  <source
+                    type="image/webp"
+                    srcset={`${thumb} 640w`}
+                    sizes={GALLERY_SIZES}
+                  />
+                )}
+                <img
+                  src={p.data.cover}
+                  alt={p.data.title}
+                  loading={p.id === firstPhotoId ? 'eager' : 'lazy'}
+                  decoding="async"
+                  fetchpriority={p.id === firstPhotoId ? 'high' : 'low'}
+                  srcset={srcSet(p.data.cover, [276, 552, 828])}
+                  sizes={GALLERY_SIZES}
+                />
+              </picture>
+            </a>
+          );
+        })}
       </div>
     </section>
   ))}

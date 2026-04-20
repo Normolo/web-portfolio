@@ -1,5 +1,5 @@
 ---
-import '../styles/global.css';
+import globalCss from '../styles/global.css?raw';
 import { getCollection } from 'astro:content';
 
 interface Props {
@@ -60,7 +60,21 @@ const versionId = rawVersionId ? rawVersionId.slice(0, 7) : 'local';
     <link rel="canonical" href={canonical} />
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-
+    <style set:html={globalCss}></style>
+    <script is:inline>
+      // If a Cloudflare Image Transform URL in srcset fails (e.g. on *.pages.dev preview
+      // deployments where the feature is unavailable), clear the srcset and reload the
+      // original src so the image is never permanently broken.
+      document.addEventListener('error', function(e) {
+        var t = e.target;
+        if (t.tagName !== 'IMG' || !t.srcset || t.dataset.fallbackUsed) return;
+        t.dataset.fallbackUsed = '1';
+        t.srcset = '';
+        var s = t.src;
+        t.src = '';
+        t.src = s;
+      }, true);
+    </script>
   </head>
   <body>
     <header>

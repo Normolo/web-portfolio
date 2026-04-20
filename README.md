@@ -39,10 +39,13 @@ If you want easy bulk uploads without Google Drive integration:
 
 ```bash
 npm run photos:import
+npm run photos:compress
 ```
 
 This creates missing Markdown entries in `src/content/photos/` for any image that does not already have a matching `cover` path.
 Use `PHOTO_DEFAULT_CATEGORY` to set the generated category (default: `General`).
+Compression runs as a separate command so image optimization does not add overhead to `npm run build`.
+`photos:compress` also generates 640 px-wide WebP thumbnails in `public/photos/_thumbs/` for use as responsive image sources in the gallery.
 
 ## Optional: Automatic photo sync from Google Drive
 
@@ -65,6 +68,7 @@ This repo includes a GitHub Actions workflow at `.github/workflows/sync-photos-f
 - Scheduled sync: runs hourly by default (`cron: 0 * * * *`)
 
 The workflow commits synced photos and newly generated markdown entries back to the repository automatically.
+It also runs `npm run photos:compress` before commit so newly synced images are optimized.
 
 ## Deploy to Cloudflare Pages
 
