@@ -29,7 +29,10 @@ export async function buildSrcSet(src: string, widths: number[], quality = 85): 
     inferSize: true,
   })
     .then((image) => image.srcSet.attribute || undefined)
-    .catch(() => undefined);
+    .catch((error) => {
+      console.warn(`Could not generate srcset for "${src}".`, error);
+      return undefined;
+    });
 
   srcSetCache.set(cacheKey, srcSetPromise);
   return srcSetPromise;
