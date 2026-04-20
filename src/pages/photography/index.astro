@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import { thumbPath, srcSet, CONTENT_MAX_VIEWPORT } from '../../lib/img';
 
 const photos = (await getCollection('photos', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -12,12 +13,9 @@ const categories = [...new Set(photos.map(p => p.data.category))];
 // condition `p.id === firstPhotoId` is always false (photo IDs are strings, never null).
 const firstPhotoId = photos[0]?.id ?? null;
 
-function thumbPath(cover: string): string | null {
-  if (!cover.startsWith('/photos/')) return null;
-  const filename = cover.slice('/photos/'.length);
-  const stem = filename.replace(/\.[^.]+$/, '');
-  return `/photos/_thumbs/${stem}.webp`;
-}
+// Grid column sizes: at ≥908px viewport the content is 812px wide with a 3-column
+// auto-fill (minmax 220px) → each cell ≈ 276px. Below that two or one column.
+const GALLERY_SIZES = `(min-width: ${CONTENT_MAX_VIEWPORT}px) 276px, (min-width: 520px) calc(50vw - 2rem), calc(100vw - 3rem)`;
 ---
 <Layout title="Photography — Benjamin Borg" description="Hobbyist photography — landscapes, street, and more.">
   <h1>Photography</h1>
@@ -36,10 +34,18 @@ function thumbPath(cover: string): string | null {
                   <source
                     type="image/webp"
                     srcset={`${thumb} 640w`}
-                    sizes="(min-width: 908px) 276px, (min-width: 520px) calc(50vw - 2rem), calc(100vw - 3rem)"
+                    sizes={GALLERY_SIZES}
                   />
                 )}
-                <img src={p.data.cover} alt={p.data.title} loading={p.id === firstPhotoId ? 'eager' : 'lazy'} decoding="async" fetchpriority={p.id === firstPhotoId ? 'high' : 'low'} />
+                <img
+                  src={p.data.cover}
+                  alt={p.data.title}
+                  loading={p.id === firstPhotoId ? 'eager' : 'lazy'}
+                  decoding="async"
+                  fetchpriority={p.id === firstPhotoId ? 'high' : 'low'}
+                  srcset={srcSet(p.data.cover, [276, 552, 828])}
+                  sizes={GALLERY_SIZES}
+                />
               </picture>
             </a>
           );

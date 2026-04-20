@@ -1,9 +1,14 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import { srcSet, CONTENT_MAX_VIEWPORT } from '../../lib/img';
 
 const projects = (await getCollection('projects', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+// Card-grid is repeat(auto-fill, minmax(280px, 1fr)) inside 812px content area.
+// Two 280px columns fit comfortably → each card ≈ 396px. One column on narrow screens.
+const CARD_BANNER_SIZES = `(min-width: ${CONTENT_MAX_VIEWPORT}px) 396px, (min-width: 520px) calc(50vw - 2.25rem), calc(100vw - 3rem)`;
 ---
 <Layout title="Projects — Benjamin Borg" description="A showcase of projects, experiments, and builds.">
   <h1>Projects</h1>
@@ -19,6 +24,8 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft))
               alt={`Cover image for ${p.data.title}`}
               loading="lazy"
               decoding="async"
+              srcset={srcSet(p.data.image, [400, 800])}
+              sizes={CARD_BANNER_SIZES}
               style="width: 100%; height: 160px; object-fit: cover; display: block;"
             />
           )}
