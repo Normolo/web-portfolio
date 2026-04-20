@@ -49,11 +49,12 @@ const formatTimeSince = (date: Date | null) => {
 };
 
 const env = import.meta.env as Record<string, string | undefined>;
+const SHORT_SHA_LENGTH = 7;
 const SHA_REGEX = /^[0-9a-f]{40}$/i;
 const BRANCH_REGEX = /^[A-Za-z0-9._/-]+$/;
 const GIT_EXEC_OPTIONS = {
   cwd: process.cwd(),
-  encoding: 'utf8',
+  encoding: 'utf-8',
   stdio: ['ignore', 'pipe', 'pipe'] as const,
   timeout: 2000,
 };
@@ -77,7 +78,7 @@ const readGitBranch = () => {
 };
 
 const fullCommitSha = env.CF_PAGES_COMMIT_SHA ?? env.GITHUB_SHA ?? readGitFullSha();
-const shortCommitSha = fullCommitSha?.slice(0, 7) ?? 'unknown';
+const shortCommitSha = fullCommitSha?.slice(0, SHORT_SHA_LENGTH) ?? 'unknown';
 
 const prNumber =
   env.CF_PAGES_PULL_REQUEST_ID ??
