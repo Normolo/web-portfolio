@@ -1,6 +1,7 @@
 ---
 import globalCss from '../styles/global.css?raw';
 import { getCollection } from 'astro:content';
+import { execSync } from 'node:child_process';
 
 interface Props {
   title: string;
@@ -48,8 +49,29 @@ const formatTimeSince = (date: Date | null) => {
 };
 
 const env = import.meta.env as Record<string, string | undefined>;
-const rawVersionId = env.CF_PAGES_COMMIT_SHA ?? env.GITHUB_SHA;
-const versionId = rawVersionId ? rawVersionId.slice(0, 7) : 'local';
+const readGit = (command: string) => {
+  try {
+    return execSync(command, { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch {
+    return undefined;
+  }
+};
+
+const fullCommitSha = env.CF_PAGES_COMMIT_SHA ?? env.GITHUB_SHA ?? readGit('git rev-parse HEAD');
+const shortCommitSha = fullCommitSha?.slice(0, 7) ?? 'unknown';
+
+const prNumber =
+  env.CF_PAGES_PULL_REQUEST_ID ??
+  env.GITHUB_REF?.match(/^refs\/pull\/(\d+)\/(?:head|merge)$/)?.[1] ??
+  env.GITHUB_REF_NAME?.match(/^(\d+)\/(?:head|merge)$/)?.[1];
+
+const branchName =
+  env.CF_PAGES_BRANCH ??
+  env.GITHUB_HEAD_REF ??
+  env.GITHUB_REF_NAME?.replace(/^refs\/heads\//, '') ??
+  readGit('git rev-parse --abbrev-ref HEAD');
+
+const versionId = prNumber ? `PR #${prNumber} · ${shortCommitSha}` : `${branchName ?? 'detached'} · ${shortCommitSha}`;
 ---
 <!doctype html>
 <html lang="en">
