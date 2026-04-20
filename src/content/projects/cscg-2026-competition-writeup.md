@@ -4,6 +4,7 @@ description: "Solo CTF participation in CSCG 2026, ranking 7th in Malta among ~1
 date: 2026-04-18
 tags: ["CTF", "Cryptography", "Web Exploitation", "Forensics", "Reverse Engineering"]
 liveUrl: "https://play.cscg.live/"
+image: "https://github.com/user-attachments/assets/4b7c8a94-f366-4978-95a9-715634184b92"
 draft: false
 ---
 
@@ -44,6 +45,18 @@ A FastAPI application backed by ChromaDB applied path sanitisation that could be
 ### Port Knocking via YouTube Metadata
 
 A packet capture contained a port knocking sequence where the destination port bytes were derived from YouTube video IDs embedded in the traffic. Identifying the encoding scheme and reconstructing the knock sequence from the capture revealed the flag.
+
+## Reverse Engineering
+
+### Mystical PostScript Cipher
+
+One challenge provided an encrypted artifact that turned out to be a PostScript program encoded with a custom symbolic cipher. The source material was the [mystical_ps](https://github.com/denismm/mystical_ps) project by Denis Moskowitz — a PostScript generator that renders magical sigils by mapping text to geometric symbols arranged on a circle.
+
+The challenge artifact was a rendered sigil (shown as the cover image above): a large central circle packed with crosshatch chords, surrounded by a cluster of smaller satellite sigils, each containing its own star polygon and annotated with encoded glyphs. The task was to reverse the encoding and recover the hidden plaintext.
+
+Working through the mystical_ps source, I mapped each glyph back to its corresponding character using the project's encoding table. Starting from the outer ring of the central sigil and then processing the satellite circles in order, I reconstructed the full plaintext that had been drawn into the image. This required careful attention to the reading direction (the text runs around the ring in a specific rotational order) and to the distinction between letter glyphs, digits, and punctuation symbols.
+
+The flag was embedded in the decoded satellite labels, confirming the full decryption.
 
 ## Reflections
 
