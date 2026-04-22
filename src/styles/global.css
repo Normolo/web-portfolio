@@ -324,8 +324,22 @@ pre code { background: none; padding: 0; }
   margin-top: 0;
 }
 
+.home-skill-card {
+  min-height: 102px;
+  display: flex;
+  align-items: center;
+}
+
+.home-skill-card h3 {
+  margin: 0;
+}
+
 @media (min-width: 960px) {
   .home-projects-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .home-skills-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

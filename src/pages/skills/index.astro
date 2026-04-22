@@ -1,0 +1,22 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const skills = (await getCollection('skills', ({ data }) => !data.draft))
+  .sort((a, b) => a.data.title.localeCompare(b.data.title));
+---
+<Layout title="Skills — Benjamin Borg" description="A summary of technical skills and areas of experience.">
+  <h1>Skills</h1>
+  <p class="subtitle" style="color: var(--muted); margin-top: 0.25rem;">
+    A snapshot of the tools and areas I work with most.
+  </p>
+
+  <section class="card" style="margin-top: 1.5rem;">
+    {skills.map((skill) => (
+      <article id={skill.id} style="padding: 0.75rem 0; border-bottom: 1px solid var(--border);">
+        <h2 style="margin: 0 0 0.45rem;">{skill.data.title}</h2>
+        <p style="color: var(--muted); margin-bottom: 0;">{skill.data.summary}</p>
+      </article>
+    ))}
+  </section>
+</Layout>

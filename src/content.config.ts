@@ -27,4 +27,13 @@ const photos = defineCollection({
   }),
 });
 
-export const collections = { projects, photos };
+const skills = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/skills' }),
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { projects, photos, skills };
