@@ -162,38 +162,18 @@ const HOME_PHOTO_SIZES = `(min-width: 960px) 390px, (min-width: 520px) calc(50vw
       </p>
     </section>
   </div>
-  <script is:inline>
-    const emailButton = document.querySelector('[data-copy-email]');
+  <script>
+    const emailButton = document.querySelector<HTMLButtonElement>('[data-copy-email]');
     const toast = document.getElementById('contact-toast');
 
-    const copyWithFallback = async (text) => {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(text);
-        return true;
-      }
-
-      const tempInput = document.createElement('textarea');
-      tempInput.value = text;
-      tempInput.setAttribute('readonly', '');
-      tempInput.style.position = 'absolute';
-      tempInput.style.left = '-9999px';
-      document.body.appendChild(tempInput);
-      tempInput.select();
-      // Deprecated API used only as fallback when Clipboard API is unavailable.
-      const copied = document.execCommand('copy');
-      document.body.removeChild(tempInput);
-      return copied;
-    };
-
     if (emailButton && toast) {
-      let hideTimer;
+      let hideTimer: ReturnType<typeof setTimeout>;
 
       emailButton.addEventListener('click', async () => {
         const email = emailButton.getAttribute('data-copy-email') ?? '';
 
         try {
-          const copied = await copyWithFallback(email);
-          if (!copied) throw new Error('copy failed');
+          await navigator.clipboard.writeText(email);
           toast.textContent = 'Email copied to clipboard';
         } catch {
           toast.textContent = `Could not copy automatically. Email: ${email}`;
@@ -202,8 +182,8 @@ const HOME_PHOTO_SIZES = `(min-width: 960px) 390px, (min-width: 520px) calc(50vw
         toast.hidden = false;
         toast.classList.add('visible');
 
-        window.clearTimeout(hideTimer);
-        hideTimer = window.setTimeout(() => {
+        clearTimeout(hideTimer);
+        hideTimer = setTimeout(() => {
           toast.classList.remove('visible');
           toast.hidden = true;
         }, 2200);

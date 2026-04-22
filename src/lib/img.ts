@@ -1,11 +1,11 @@
 import { getImage } from 'astro:assets';
 
 /**
- * The viewport width at which `main` reaches its maximum content width of 860px
- * (860px content + 2 × 1.5rem padding = 908px).  Used in `sizes` attributes to
+ * The viewport width at which `main` reaches its maximum content width of 1120px
+ * (1120px content + 2 × 1.5rem padding = 1168px).  Used in `sizes` attributes to
  * switch from viewport-relative to fixed-pixel widths.
  */
-export const CONTENT_MAX_VIEWPORT = 908;
+export const CONTENT_MAX_VIEWPORT = 1168;
 
 const srcSetCache = new Map<string, Promise<string | undefined>>();
 
