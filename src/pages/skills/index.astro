@@ -4,6 +4,10 @@ import { getCollection } from 'astro:content';
 
 const skills = (await getCollection('skills', ({ data }) => !data.draft))
   .sort((a, b) => a.data.title.localeCompare(b.data.title));
+const skillDetails = skills.map((skill) => ({
+  ...skill,
+  slug: skill.id.replace(/\.md$/, ''),
+}));
 ---
 <Layout title="Skills — Benjamin Borg" description="A summary of technical skills and areas of experience.">
   <h1>Skills</h1>
@@ -12,8 +16,8 @@ const skills = (await getCollection('skills', ({ data }) => !data.draft))
   </p>
 
   <section class="card skills-list" style="margin-top: 1.5rem;">
-    {skills.map((skill) => (
-      <article id={skill.id} class="skill-item">
+    {skillDetails.map((skill) => (
+      <article id={skill.slug} class="skill-item">
         <h2 style="margin: 0 0 0.45rem;">{skill.data.title}</h2>
         <p style="color: var(--muted); margin-bottom: 0;">{skill.data.summary}</p>
       </article>

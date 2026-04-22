@@ -14,6 +14,10 @@ const photos = (await getCollection('photos', ({ data }) => !data.draft))
 
 const skills = (await getCollection('skills', ({ data }) => !data.draft))
   .sort((a, b) => a.data.title.localeCompare(b.data.title));
+const skillPreviews = skills.map((skill) => ({
+  ...skill,
+  slug: skill.id.replace(/\.md$/, ''),
+}));
 
 const profilePhotoSrc = PROFILE_PHOTO_SRC;
 const profilePhotoSrcSet = await buildSrcSet(profilePhotoSrc, [120, 240, 360]);
@@ -133,8 +137,8 @@ const HOME_PHOTO_SIZES = `(min-width: 960px) 390px, (min-width: 520px) calc(50vw
       <h2>Skills</h2>
       <p style="color: var(--muted); font-size: 0.9rem;">Core tools and topics I regularly work with.</p>
       <div class="card-grid home-skills-grid">
-        {skills.map(skill => (
-          <a href={`/skills#${skill.id}`} class="home-skill-link">
+        {skillPreviews.map(skill => (
+          <a href={`/skills#${skill.slug}`} class="home-skill-link">
             <div class="card home-skill-card">
               <h3>{skill.data.title}</h3>
             </div>
