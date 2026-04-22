@@ -4,7 +4,7 @@ description: "A static portfolio site built with Astro and deployed on Cloudflar
 date: 2026-04-18
 tags: ["Astro", "Cloudflare", "TypeScript", "CSS"]
 repoUrl: "https://github.com/Normolo/web-portfolio"
-image: "https://github-readme-stats.vercel.app/api?username=Normolo&show_icons=true&count_private=true&hide_border=true&bg_color=00000000&title_color=6e6e7a&text_color=6e6e7a&icon_color=6e6e7a"
+image: "https://github-readme-stats.vercel.app/api/pin/?username=Normolo&repo=web-portfolio&hide_border=true&bg_color=00000000&title_color=6e6e7a&text_color=6e6e7a&icon_color=6e6e7a"
 draft: false
 ---
 
@@ -26,9 +26,20 @@ This very site — a fully static portfolio built with **Astro** and deployed to
 - CV page
 - Minimal JS footprint — only one deferred module script ships to the browser
 
+## Cloudflare Security Experiments
+
+Beyond hosting, I used this site as a hands-on testbed for Cloudflare's security controls:
+
+- **WAF custom rules** — wrote and tuned firewall rules to block common attack patterns while keeping legitimate traffic unaffected
+- **Bot Management** — explored challenge modes and JavaScript challenges to filter automated scanners
+- **Rate limiting** — applied per-IP rate limits to sensitive paths and observed how they interact with CDN caching
+- **Security headers** — enforced `Content-Security-Policy`, `Strict-Transport-Security`, and related headers via Cloudflare Transform Rules
+- **Access controls** — tested Cloudflare Access for gating preview deployments behind identity checks
+
 ## What I learned
 
 - Structuring Astro content collections for fully type-safe Markdown
 - Build-time image optimisation with `getImage` and responsive `srcset` generation
 - Zero-overhead CSS architecture without a utility framework
 - Cloudflare Pages CI/CD and preview deployments
+- Practical application of Cloudflare WAF, rate limiting, bot controls, and security headers
