@@ -4,7 +4,7 @@ description: "A static portfolio site built with Astro and deployed on Cloudflar
 date: 2026-04-18
 tags: ["Astro", "Cloudflare", "TypeScript", "CSS"]
 repoUrl: "https://github.com/Normolo/web-portfolio"
-image: "https://github-readme-stats.vercel.app/api/pin/?username=Normolo&repo=web-portfolio&hide_border=true&bg_color=00000000&title_color=6e6e7a&text_color=6e6e7a&icon_color=6e6e7a"
+image: "https://raw.githubusercontent.com/Normolo/web-portfolio/main/output/stats_langs.svg"
 draft: false
 ---
 
