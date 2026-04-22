@@ -13,7 +13,7 @@ const skills = (await getCollection('skills', ({ data }) => !data.draft))
 
   <section class="card skills-list" style="margin-top: 1.5rem;">
     {skills.map((skill) => (
-      <article id={skill.id} class="skill-item" style="padding: 0.75rem 0;">
+      <article id={skill.id} class="skill-item">
         <h2 style="margin: 0 0 0.45rem;">{skill.data.title}</h2>
         <p style="color: var(--muted); margin-bottom: 0;">{skill.data.summary}</p>
       </article>
