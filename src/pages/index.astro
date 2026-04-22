@@ -134,7 +134,7 @@ const HOME_PHOTO_SIZES = `(min-width: 960px) 390px, (min-width: 520px) calc(50vw
       <p style="color: var(--muted); font-size: 0.9rem;">Core tools and topics I regularly work with.</p>
       <div class="card-grid home-skills-grid">
         {skills.map(skill => (
-          <a href={`/skills#${skill.id}`} style="text-decoration: none; color: inherit;">
+          <a href={`/skills#${skill.id}`} class="home-skill-link">
             <div class="card home-skill-card">
               <h3>{skill.data.title}</h3>
             </div>

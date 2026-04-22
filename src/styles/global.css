@@ -334,6 +334,24 @@ pre code { background: none; padding: 0; }
   margin: 0;
 }
 
+.home-skill-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.home-skill-link:focus-visible {
+  outline: none;
+}
+
+.home-skill-link:focus-visible .home-skill-card {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(110, 231, 183, 0.35);
+}
+
+.skills-list .skill-item:not(:last-child) {
+  border-bottom: 1px solid var(--border);
+}
+
 @media (min-width: 960px) {
   .home-projects-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));

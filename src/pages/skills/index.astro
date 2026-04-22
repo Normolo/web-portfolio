@@ -11,9 +11,9 @@ const skills = (await getCollection('skills', ({ data }) => !data.draft))
     A snapshot of the tools and areas I work with most.
   </p>
 
-  <section class="card" style="margin-top: 1.5rem;">
+  <section class="card skills-list" style="margin-top: 1.5rem;">
     {skills.map((skill) => (
-      <article id={skill.id} style="padding: 0.75rem 0; border-bottom: 1px solid var(--border);">
+      <article id={skill.id} class="skill-item" style="padding: 0.75rem 0;">
         <h2 style="margin: 0 0 0.45rem;">{skill.data.title}</h2>
         <p style="color: var(--muted); margin-bottom: 0;">{skill.data.summary}</p>
       </article>
