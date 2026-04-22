@@ -4,7 +4,7 @@ description: "A static portfolio site built with Astro and deployed on Cloudflar
 date: 2026-04-18
 tags: ["Astro", "Cloudflare", "TypeScript", "CSS"]
 repoUrl: "https://github.com/Normolo/web-portfolio"
-image: "https://raw.githubusercontent.com/Normolo/web-portfolio/main/output/stats_langs.svg"
+image: "https://github.com/user-attachments/assets/3f5fbc75-8dae-45e8-8910-1dc7b0466c51"
 draft: false
 ---
 
