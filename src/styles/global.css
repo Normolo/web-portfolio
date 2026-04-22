@@ -13,7 +13,7 @@
   --surface-fallback-hover: #222;
   --surface-fallback-active: #202020;
   --radius: 6px;
-  --max-w: 860px;
+  --max-w: 1120px;
 }
 
 body {
@@ -325,9 +325,8 @@ pre code { background: none; padding: 0; }
 }
 
 @media (min-width: 960px) {
-  .home-sections {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
+  .home-projects-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
