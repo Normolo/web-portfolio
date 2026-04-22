@@ -91,7 +91,7 @@ const HOME_PHOTO_SIZES = `(min-width: 960px) 390px, (min-width: 520px) calc(50vw
     <section class="home-section">
       <h2>Recent Projects</h2>
       <p style="color: var(--muted); font-size: 0.9rem;">A selection of things I've built or tinkered with.</p>
-      <div class="card-grid">
+      <div class="card-grid home-projects-grid">
         {projects.map(p => (
           <a href={`/projects/${p.id}`} style="text-decoration: none; color: inherit;">
             <div class="card" style={p.data.image ? "display: flex; gap: 0.85rem; align-items: flex-start; padding: 1rem 1.25rem;" : undefined}>
