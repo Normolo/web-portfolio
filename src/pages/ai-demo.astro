@@ -1,0 +1,233 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="AI Chat · Benjamin Borg" description="Chat with an AI assistant about Benjamin's portfolio, skills, and projects.">
+  <h1>AI Chat</h1>
+  <p class="subtitle" style="color: var(--muted); font-size: 1.05rem; margin-bottom: 2rem;">
+    Powered by <a href="https://huggingface.co/HuggingFaceH4/zephyr-7b-beta" target="_blank" rel="noopener noreferrer">Zephyr 7B</a> via the Hugging Face Inference API.
+    Ask anything about the portfolio, Benjamin's background, or anything else.
+  </p>
+
+  <div class="chat-wrap">
+    <div class="messages" id="messages" role="log" aria-live="polite" aria-label="Chat messages">
+      <div class="message assistant">
+        <span class="bubble">Hey! I'm an AI assistant on Benjamin's portfolio. Ask me about his projects, skills, background, or anything else you're curious about.</span>
+      </div>
+    </div>
+
+    <form class="input-row" id="chat-form" autocomplete="off">
+      <input
+        type="text"
+        id="chat-input"
+        class="chat-input"
+        placeholder="Type a message…"
+        maxlength="500"
+        aria-label="Chat message"
+        required
+      />
+      <button type="submit" class="send-btn" id="send-btn" aria-label="Send">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="18" height="18">
+          <path d="M17.5 10L3.5 3.5l3 6.5-3 6.5L17.5 10z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <style>
+    .chat-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--surface);
+      max-width: 680px;
+    }
+
+    .messages {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      padding: 1.25rem 1.25rem 1rem;
+      min-height: 320px;
+      max-height: 520px;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    .message {
+      display: flex;
+    }
+
+    .message.user {
+      justify-content: flex-end;
+    }
+
+    .bubble {
+      display: block;
+      max-width: 82%;
+      padding: 0.6rem 0.95rem;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .message.user .bubble {
+      background: color-mix(in oklab, var(--accent) 18%, transparent);
+      border: 1px solid color-mix(in oklab, var(--accent) 32%, transparent);
+      color: var(--text);
+    }
+
+    .message.assistant .bubble {
+      background: color-mix(in oklab, var(--surface) 60%, black);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .message.error .bubble {
+      border-color: #f87171;
+      color: #f87171;
+      background: color-mix(in oklab, #f87171 10%, transparent);
+    }
+
+    .typing .bubble {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .chat-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 0.85rem 1rem;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+
+    .chat-input::placeholder {
+      color: var(--muted);
+    }
+
+    .send-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 1rem;
+      background: transparent;
+      border: none;
+      border-left: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+      font-family: inherit;
+    }
+
+    .send-btn:hover {
+      color: var(--accent);
+      background: color-mix(in oklab, var(--accent) 8%, transparent);
+    }
+
+    .send-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  </style>
+
+  <script>
+    interface ChatMessage {
+      role: 'user' | 'assistant';
+      content: string;
+    }
+
+    const form = document.getElementById('chat-form') as HTMLFormElement;
+    const input = document.getElementById('chat-input') as HTMLInputElement;
+    const sendBtn = document.getElementById('send-btn') as HTMLButtonElement;
+    const messagesEl = document.getElementById('messages') as HTMLDivElement;
+
+    const history: ChatMessage[] = [];
+
+    function scrollToBottom() {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function appendMessage(role: 'user' | 'assistant' | 'error', text: string): HTMLElement {
+      const div = document.createElement('div');
+      div.className = `message ${role}`;
+      const span = document.createElement('span');
+      span.className = 'bubble';
+      span.textContent = text;
+      div.appendChild(span);
+      messagesEl.appendChild(div);
+      scrollToBottom();
+      return div;
+    }
+
+    function appendTyping(): HTMLElement {
+      const div = document.createElement('div');
+      div.className = 'message assistant typing';
+      const span = document.createElement('span');
+      span.className = 'bubble';
+      span.textContent = 'Thinking…';
+      div.appendChild(span);
+      messagesEl.appendChild(div);
+      scrollToBottom();
+      return div;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+      input.disabled = true;
+      sendBtn.disabled = true;
+
+      appendMessage('user', text);
+      history.push({ role: 'user', content: text });
+
+      const typingEl = appendTyping();
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: history }),
+        });
+
+        const data = await res.json() as {
+          choices?: Array<{ message?: { content?: string } }>;
+          error?: string;
+        };
+
+        typingEl.remove();
+
+        if (!res.ok || data.error) {
+          appendMessage('error', data.error ?? `Error ${res.status}`);
+        } else {
+          const reply = data.choices?.[0]?.message?.content?.trim() ?? '(empty response)';
+          history.push({ role: 'assistant', content: reply });
+          appendMessage('assistant', reply);
+        }
+      } catch {
+        typingEl.remove();
+        appendMessage('error', 'Network error — please try again.');
+      } finally {
+        input.disabled = false;
+        sendBtn.disabled = false;
+        input.focus();
+      }
+    });
+  </script>
+</Layout>
