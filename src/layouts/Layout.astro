@@ -52,7 +52,7 @@ const env = import.meta.env as Record<string, string | undefined>;
 const SHORT_SHA_LENGTH = 7;
 const SHA_REGEX = /^[0-9a-f]{40}$/i;
 const BRANCH_REGEX = /^[A-Za-z0-9._/-]+$/;
-const PULL_REQUEST_PATTERNS = [/Merge pull request #(\d+)/i, /\(#(\d+)\)\s*$/];
+const PULL_REQUEST_PATTERN = /Merge pull request #(\d+)|\(#(\d+)\)\s*$/i;
 const GIT_EXEC_OPTIONS = {
   cwd: process.cwd(),
   encoding: 'utf-8',
@@ -87,10 +87,9 @@ const readGitLastPullRequestNumber = () => {
       .filter(Boolean);
 
     for (const message of commits) {
-      for (const pattern of PULL_REQUEST_PATTERNS) {
-        const match = message.match(pattern);
-        if (match?.[1]) return match[1];
-      }
+      const match = message.match(PULL_REQUEST_PATTERN);
+      const pullRequestNumber = match?.[1] ?? match?.[2];
+      if (pullRequestNumber) return pullRequestNumber;
     }
     return undefined;
   } catch {
