@@ -53,7 +53,8 @@ const SHORT_SHA_LENGTH = 7;
 const MAX_COMMITS_TO_SCAN = 20;
 const SHA_REGEX = /^[0-9a-f]{40}$/i;
 const BRANCH_REGEX = /^[A-Za-z0-9._/-]+$/;
-const PULL_REQUEST_REGEX = /Merge pull request #(\d+)|\(#(\d+)\)\s*$/i;
+const MERGE_PULL_REQUEST_REGEX = /Merge pull request #(\d+)/i;
+const SQUASH_PULL_REQUEST_REGEX = /\(#(\d+)\)\s*$/;
 const GIT_EXEC_OPTIONS = {
   cwd: process.cwd(),
   encoding: 'utf-8',
@@ -92,8 +93,10 @@ const readGitLastPullRequestNumber = () => {
       .filter(Boolean);
 
     const extractPullRequestNumber = (message: string) => {
-      const match = message.match(PULL_REQUEST_REGEX);
-      return match?.[1] ?? match?.[2];
+      return (
+        message.match(MERGE_PULL_REQUEST_REGEX)?.[1] ??
+        message.match(SQUASH_PULL_REQUEST_REGEX)?.[1]
+      );
     };
 
     for (const message of commits) {
