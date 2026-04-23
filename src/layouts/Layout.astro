@@ -52,6 +52,7 @@ const env = import.meta.env as Record<string, string | undefined>;
 const SHORT_SHA_LENGTH = 7;
 const SHA_REGEX = /^[0-9a-f]{40}$/i;
 const BRANCH_REGEX = /^[A-Za-z0-9._/-]+$/;
+const PULL_REQUEST_PATTERNS = [/Merge pull request #(\d+)/i, /\(#(\d+)\)\s*$/];
 const GIT_EXEC_OPTIONS = {
   cwd: process.cwd(),
   encoding: 'utf-8',
@@ -77,12 +78,33 @@ const readGitBranch = () => {
   }
 };
 
+const readGitLastPullRequestNumber = () => {
+  try {
+    const logOutput = execSync('git log -n 50 --pretty=%B%x00', GIT_EXEC_OPTIONS);
+    const commits = logOutput
+      .split('\u0000')
+      .map((message) => message.trim())
+      .filter(Boolean);
+
+    for (const message of commits) {
+      for (const pattern of PULL_REQUEST_PATTERNS) {
+        const match = message.match(pattern);
+        if (match?.[1]) return match[1];
+      }
+    }
+    return undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 const fullCommitSha = env.CF_PAGES_COMMIT_SHA ?? env.GITHUB_SHA ?? readGitFullSha();
 const shortCommitSha = fullCommitSha?.slice(0, SHORT_SHA_LENGTH) ?? 'unknown';
 
 const prNumber =
   env.CF_PAGES_PULL_REQUEST_ID ??
-  env.GITHUB_REF?.match(/^refs\/pull\/(\d+)\/(?:head|merge)$/)?.[1];
+  env.GITHUB_REF?.match(/^refs\/pull\/(\d+)\/(?:head|merge)$/)?.[1] ??
+  readGitLastPullRequestNumber();
 
 const branchName =
   env.CF_PAGES_BRANCH ??
