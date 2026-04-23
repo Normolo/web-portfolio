@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import { thumbPath, buildSrcSet, CONTENT_MAX_VIEWPORT } from '../lib/img';
 import { PROFILE_PHOTO_SRC } from '../lib/site';
+import { skills } from '../lib/skills';
 
 const projects = (await getCollection('projects', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
@@ -122,6 +123,22 @@ const HOME_PHOTO_SIZES = `(min-width: 960px) 390px, (min-width: 520px) calc(50vw
       </div>
       <p style="margin-top: 1.25rem;">
         <a class="section-link" href="/projects">All projects →</a>
+      </p>
+    </section>
+
+    <!-- Skills -->
+    <section class="home-section">
+      <h2>Skills</h2>
+      <p style="color: var(--muted); font-size: 0.9rem;">Core areas I use across projects and study.</p>
+      <div class="skill-grid home-skills-grid">
+        {skills.map((skill) => (
+          <a href={`/skills#${skill.slug}`} class="skill-card" style="text-decoration: none; color: inherit;">
+            <h3>{skill.name}</h3>
+          </a>
+        ))}
+      </div>
+      <p style="margin-top: 1.25rem;">
+        <a class="section-link skill" href="/skills">All skills →</a>
       </p>
     </section>
 
