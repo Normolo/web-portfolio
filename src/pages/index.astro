@@ -144,6 +144,7 @@ const HOME_PHOTO_SIZES = `(min-width: 960px) 390px, (min-width: 520px) calc(50vw
       <div class="skill-grid home-skills-grid" style={`grid-template-columns: repeat(${skillCols}, 1fr);`}>
         {skills.map((skill) => (
           <a href={`/skills#${skill.slug}`} class="skill-card" style="text-decoration: none; color: inherit;">
+            <Fragment set:html={skill.icon} />
             <h3>{skill.name}</h3>
           </a>
         ))}

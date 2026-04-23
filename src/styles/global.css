@@ -184,7 +184,7 @@ pre code { background: none; padding: 0; }
 }
 
 .home-skills-grid {
-  grid-auto-rows: 80px;
+  grid-auto-rows: 90px;
 }
 
 .photo-card img {
@@ -200,12 +200,24 @@ pre code { background: none; padding: 0; }
   border: 1px solid var(--border);
   border-radius: var(--radius);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.35rem;
   padding: 0.5rem 0.6rem;
   height: 100%;
   text-align: center;
   transition: border-color 0.15s, color 0.15s;
+}
+
+.skill-card svg {
+  opacity: 0.7;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.skill-card:hover svg {
+  opacity: 1;
 }
 
 .skill-card h3 {

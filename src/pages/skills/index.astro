@@ -14,7 +14,10 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft))
     const related = projects.filter(p => p.data.skills.includes(skill.slug));
     return (
       <section id={skill.slug} style="margin-top: 2rem; scroll-margin-top: 5rem;">
-        <h2 style="margin-top: 0;">{skill.name}</h2>
+        <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+          <Fragment set:html={skill.icon} />
+          <h2 style="margin: 0;">{skill.name}</h2>
+        </div>
         <p>{skill.description}</p>
         {related.length > 0 && (
           <div style="margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
