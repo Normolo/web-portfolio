@@ -1,5 +1,4 @@
 name = "web-portfolio"
-main = "src/worker.ts"
 compatibility_date = "2026-04-18"
 
 [observability]
