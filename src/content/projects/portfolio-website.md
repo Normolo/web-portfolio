@@ -3,6 +3,7 @@ title: "Portfolio Website"
 description: "A static portfolio site built with Astro and deployed on Cloudflare Pages."
 date: 2026-04-18
 tags: ["Astro", "Cloudflare", "TypeScript", "CSS"]
+skills: ["web-application-security"]
 repoUrl: "https://github.com/Normolo/web-portfolio"
 image: "https://github.com/user-attachments/assets/3f5fbc75-8dae-45e8-8910-1dc7b0466c51"
 draft: false

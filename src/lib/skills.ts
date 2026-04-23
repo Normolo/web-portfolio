@@ -6,51 +6,39 @@ export interface Skill {
 
 export const skills: Skill[] = [
   {
-    slug: 'cybersecurity',
-    name: 'Cybersecurity',
+    slug: 'red-teaming',
+    name: 'Red-teaming / Pen testing',
     description:
-      'I focus on secure systems thinking, practical threat modeling, and hardening workflows against real-world attack paths.',
+      'I approach systems as an attacker would, identifying exploitable weaknesses through hands-on penetration testing and CTF participation.',
   },
   {
-    slug: 'mathematics',
-    name: 'Mathematics',
+    slug: 'web-application-security',
+    name: 'Web Application Security',
     description:
-      'I apply discrete and continuous mathematics to reason about algorithms, cryptography, and performance trade-offs.',
+      'I analyse and harden web applications against injection, traversal, and authentication flaws, applying both defensive controls and offensive testing techniques.',
   },
   {
-    slug: 'software-engineering',
-    name: 'Software Engineering',
+    slug: 'it-infrastructure',
+    name: 'IT Infrastructure & Virtualisation',
     description:
-      'I build maintainable software with clear architecture, careful iteration, and an emphasis on reliability over time.',
+      'I design and manage virtualised environments using hypervisors and container runtimes, handling networking, storage, and service orchestration at a homelab and production scale.',
   },
   {
-    slug: 'web-development',
-    name: 'Web Development',
+    slug: 'data-analysis',
+    name: 'Data Analysis',
     description:
-      'I create responsive, fast web interfaces with strong accessibility and clean, reusable frontend structure.',
+      'I process and interpret structured and unstructured datasets using Python, turning raw data into actionable insight through statistical analysis and visualisation.',
   },
   {
-    slug: 'python',
-    name: 'Python',
+    slug: 'cryptography',
+    name: 'Cryptography',
     description:
-      'I use Python for scripting, analysis, and automation where readability and rapid iteration are important.',
+      'I study and apply classical and modern cryptographic primitives, with experience breaking weakly implemented schemes and understanding the mathematics behind secure constructions.',
   },
   {
-    slug: 'java',
-    name: 'Java',
+    slug: 'reverse-engineering',
+    name: 'Reverse Engineering & Cyber Forensics',
     description:
-      'I work with Java for strongly typed backend and academic projects where performance and structure matter.',
-  },
-  {
-    slug: 'linux',
-    name: 'Linux',
-    description:
-      'I am comfortable in Linux environments for daily development, tooling, and system-level debugging tasks.',
-  },
-  {
-    slug: 'quantum-security',
-    name: 'Quantum Security',
-    description:
-      'I explore post-quantum risk and cryptographic transition planning to support long-term security resilience.',
+      'I reverse engineer compiled and interpreted artefacts to recover hidden logic or data, and apply forensic techniques to analyse network captures and encoded evidence.',
   },
 ];

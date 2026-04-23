@@ -3,6 +3,7 @@ title: "CSCG 2026 Competition Writeup"
 description: "Solo CTF participation in CSCG 2026, ranking 7th in Malta among ~1,000 participants worldwide."
 date: 2026-04-18
 tags: ["CTF", "Cryptography", "Web Exploitation", "Forensics", "Reverse Engineering"]
+skills: ["red-teaming", "cryptography", "web-application-security", "reverse-engineering"]
 liveUrl: "https://play.cscg.live/"
 image: "https://github.com/user-attachments/assets/4b7c8a94-f366-4978-95a9-715634184b92"
 draft: false
