@@ -86,17 +86,18 @@ const readGitLastPullRequestNumber = () => {
       'git',
       ['log', '-n', String(MAX_COMMITS_TO_SCAN), '--pretty=%B%x00'],
       GIT_EXEC_OPTIONS,
-    );
+    ) as string;
     const commits = logOutput
       .split('\u0000')
       .map((message) => message.trim())
       .filter(Boolean);
 
     const extractPullRequestNumber = (message: string) => {
-      return (
-        message.match(MERGE_PULL_REQUEST_REGEX)?.[1] ??
-        message.match(SQUASH_PULL_REQUEST_REGEX)?.[1]
-      );
+      const mergeMatch = message.match(MERGE_PULL_REQUEST_REGEX);
+      if (mergeMatch?.[1]) return mergeMatch[1];
+
+      const squashMatch = message.match(SQUASH_PULL_REQUEST_REGEX);
+      return squashMatch?.[1];
     };
 
     for (const message of commits) {
