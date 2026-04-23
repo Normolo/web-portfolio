@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
+import { skills as allSkills } from '../../lib/skills';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects', ({ data }) => !data.draft);
@@ -9,7 +10,7 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
-const { title, description, date, tags, repoUrl, liveUrl, image } = entry.data;
+const { title, description, date, tags, skills, repoUrl, liveUrl, image } = entry.data;
 ---
 <Layout title={`${title} — Benjamin Borg`} description={description}>
   <a class="back" href="/projects">← Back to projects</a>
@@ -24,6 +25,18 @@ const { title, description, date, tags, repoUrl, liveUrl, image } = entry.data;
     <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.5rem;">
       {tags.map(t => <span class="tag">{t}</span>)}
     </div>
+
+    {skills.length > 0 && (
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+        <span style="font-size: 0.8rem; color: var(--muted);">Skills:</span>
+        {skills.map(slug => {
+          const skill = allSkills.find(s => s.slug === slug);
+          return skill ? (
+            <a href={`/skills#${slug}`} class="section-link skill" style="font-size: 0.8rem;">{skill.name}</a>
+          ) : null;
+        })}
+      </div>
+    )}
 
     {(repoUrl || liveUrl) && (
       <div style="display: flex; gap: 0.75rem; margin-bottom: 2rem; flex-wrap: wrap;">

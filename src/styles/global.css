@@ -177,12 +177,59 @@ pre code { background: none; padding: 0; }
   margin-top: 1.5rem;
 }
 
+.skill-grid {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.home-skills-grid {
+  grid-auto-rows: 90px;
+}
+
 .photo-card img {
   width: 100%;
   aspect-ratio: 4/3;
   object-fit: cover;
   border-radius: var(--radius);
   display: block;
+}
+
+.skill-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.6rem;
+  height: 100%;
+  text-align: center;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.skill-card svg {
+  opacity: 0.7;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.skill-card:hover svg {
+  opacity: 1;
+}
+
+.skill-card h3 {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.skill-card:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  text-decoration: none;
 }
 
 .hero {
@@ -343,6 +390,7 @@ pre code { background: none; padding: 0; }
 }
 .section-link:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
 .section-link.photo:hover { border-color: var(--accent2); color: var(--accent2); }
+.section-link.skill:hover { border-color: var(--accent); color: var(--accent); }
 
 .meta { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.75rem; }
 .prose { max-width: 65ch; }

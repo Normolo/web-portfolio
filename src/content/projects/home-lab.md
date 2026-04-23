@@ -3,6 +3,7 @@ title: "Home Lab Server"
 description: "Self-hosted home server running Proxmox, handling VMs, containers, and local services."
 date: 2025-11-01
 tags: ["Linux", "Proxmox", "Self-hosting", "Networking"]
+skills: ["it-infrastructure"]
 draft: true
 ---
 

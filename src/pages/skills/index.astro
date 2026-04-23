@@ -1,0 +1,33 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { skills } from '../../lib/skills';
+
+const projects = (await getCollection('projects', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+<Layout title="Skills — Benjamin Borg" description="A summary of my core skills and focus areas.">
+  <h1>Skills</h1>
+  <p style="color: var(--muted); margin-top: 0.25rem;">A short overview of the areas I work in most.</p>
+
+  {skills.map((skill) => {
+    const related = projects.filter(p => p.data.skills.includes(skill.slug));
+    return (
+      <section id={skill.slug} style="margin-top: 2rem; scroll-margin-top: 5rem;">
+        <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+          <Fragment set:html={skill.icon} />
+          <h2 style="margin: 0;">{skill.name}</h2>
+        </div>
+        <p>{skill.description}</p>
+        {related.length > 0 && (
+          <div style="margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            <span style="font-size: 0.8rem; color: var(--muted); align-self: center;">Related projects:</span>
+            {related.map(p => (
+              <a href={`/projects/${p.id}`} class="section-link" style="font-size: 0.8rem;">{p.data.title} →</a>
+            ))}
+          </div>
+        )}
+      </section>
+    );
+  })}
+</Layout>
