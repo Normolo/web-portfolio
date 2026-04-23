@@ -1,7 +1,7 @@
 ---
 import globalCss from '../styles/global.css?raw';
 import { getCollection } from 'astro:content';
-import { execSync } from 'node:child_process';
+import { execFileSync, execSync } from 'node:child_process';
 
 interface Props {
   title: string;
@@ -81,15 +81,23 @@ const readGitBranch = () => {
 
 const readGitLastPullRequestNumber = () => {
   try {
-    const logOutput = execSync(`git log -n ${MAX_COMMITS_TO_SCAN} --pretty=%B%x00`, GIT_EXEC_OPTIONS);
+    const logOutput = execFileSync(
+      'git',
+      ['log', '-n', String(MAX_COMMITS_TO_SCAN), '--pretty=%B%x00'],
+      GIT_EXEC_OPTIONS,
+    );
     const commits = logOutput
       .split('\u0000')
       .map((message) => message.trim())
       .filter(Boolean);
 
-    for (const message of commits) {
+    const extractPullRequestNumber = (message: string) => {
       const match = message.match(PULL_REQUEST_REGEX);
-      const pullRequestNumber = match?.[1] ?? match?.[2];
+      return match?.[1] ?? match?.[2];
+    };
+
+    for (const message of commits) {
+      const pullRequestNumber = extractPullRequestNumber(message);
       if (pullRequestNumber) return pullRequestNumber;
     }
     return undefined;
