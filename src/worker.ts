@@ -86,7 +86,8 @@ async function handleChat(request: Request, env: Env): Promise<Response> {
       body: JSON.stringify(payload),
     });
   } catch (err) {
-    return jsonResponse({ error: 'Failed to reach HF API' }, 502);
+    console.error('HF API fetch failed:', err);
+    return jsonResponse({ error: 'Unable to connect to AI service' }, 502);
   }
 
   const responseText = await hfRes.text();
