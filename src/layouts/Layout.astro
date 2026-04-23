@@ -80,7 +80,7 @@ const readGitBranch = () => {
 
 const readGitLastPullRequestNumber = () => {
   try {
-    const logOutput = execSync('git log -n 50 --pretty=%B%x00', GIT_EXEC_OPTIONS);
+    const logOutput = execSync('git log -n 20 --pretty=%B%x00', GIT_EXEC_OPTIONS);
     const commits = logOutput
       .split('\u0000')
       .map((message) => message.trim())
