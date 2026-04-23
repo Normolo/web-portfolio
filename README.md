@@ -82,7 +82,7 @@ It also runs `npm run photos:compress` before commit so newly synced images are 
 4. Set:
    - **Build command**: `npm run build`
    - **Build output directory**: `dist`
-   - **Node.js version**: `20` (environment variable `NODE_VERSION=20`)
+   - **Node.js version**: `22` (environment variable `NODE_VERSION=22`)
 5. Click **Save and Deploy**.
 
 Every push to `main` will trigger a new deployment automatically.
