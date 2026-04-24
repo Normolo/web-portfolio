@@ -28,8 +28,8 @@ const GIT_EXEC_OPTIONS = {
 
 const readGitFullSha = () => {
   try {
-    const sha = execFileSync('git', ['rev-parse', 'HEAD'], GIT_EXEC_OPTIONS) as string;
-    return SHA_REGEX.test(sha.trim()) ? sha.trim() : undefined;
+    const sha = (execFileSync('git', ['rev-parse', 'HEAD'], GIT_EXEC_OPTIONS) as string).trim();
+    return SHA_REGEX.test(sha) ? sha : undefined;
   } catch {
     return undefined;
   }
@@ -48,8 +48,8 @@ const readGitBranch = () => {
 
 const readGitLastCommitDate = () => {
   try {
-    const ts = execFileSync('git', ['log', '-1', '--format=%ct'], GIT_EXEC_OPTIONS) as string;
-    const epoch = parseInt(ts.trim(), 10);
+    const ts = (execFileSync('git', ['log', '-1', '--format=%ct'], GIT_EXEC_OPTIONS) as string).trim();
+    const epoch = parseInt(ts, 10);
     return isNaN(epoch) ? undefined : new Date(epoch * 1000);
   } catch {
     return undefined;
@@ -58,11 +58,12 @@ const readGitLastCommitDate = () => {
 
 const readGitLastPullRequestNumber = () => {
   try {
-    const logOutput = execFileSync(
+    // Use NUL (\x00) as separator so multi-line commit bodies don't split incorrectly
+    const logOutput = (execFileSync(
       'git',
       ['log', '-n', String(MAX_COMMITS_TO_SCAN), '--pretty=%B%x00'],
       GIT_EXEC_OPTIONS,
-    ) as string;
+    ) as string);
     const commits = logOutput
       .split('\u0000')
       .map((message) => message.trim())
