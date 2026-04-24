@@ -103,8 +103,25 @@ const branchName =
   env.GITHUB_REF_NAME?.replace(/^refs\/heads\//, '') ??
   readGitBranch();
 
+const fetchGitHubPrIsDraft = async (pr: string): Promise<boolean> => {
+  try {
+    // GITHUB_REPOSITORY is set in GitHub Actions; fall back to the known repo name
+    const repo = env.GITHUB_REPOSITORY ?? 'Normolo/web-portfolio';
+    const resp = await fetch(`https://api.github.com/repos/${repo}/pulls/${pr}`, {
+      headers: { Accept: 'application/vnd.github.v3+json', 'User-Agent': 'web-portfolio-build' },
+    });
+    if (!resp.ok) return false;
+    const data = (await resp.json()) as { draft?: boolean };
+    return data.draft === true;
+  } catch {
+    return false;
+  }
+};
+
+const prIsDraft = prNumber ? await fetchGitHubPrIsDraft(prNumber) : false;
+
 const versionId = prNumber
-  ? `PR #${prNumber} · ${shortCommitSha}`
+  ? `PR #${prNumber}${prIsDraft ? ' (Draft)' : ''} · ${shortCommitSha}`
   : branchName
     ? `${branchName} · ${shortCommitSha}`
     : shortCommitSha;
