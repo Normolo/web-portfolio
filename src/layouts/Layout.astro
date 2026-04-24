@@ -17,8 +17,6 @@ const SHORT_SHA_LENGTH = 7;
 const MAX_COMMITS_TO_SCAN = 20;
 const SHA_REGEX = /^[0-9a-f]{40}$/i;
 const BRANCH_REGEX = /^[A-Za-z0-9._/-]+$/;
-const MERGE_PULL_REQUEST_REGEX = /Merge pull request #(\d+)/i;
-const SQUASH_PULL_REQUEST_REGEX = /\(#(\d+)\)\s*$/;
 const GIT_EXEC_OPTIONS = {
   cwd: process.cwd(),
   encoding: 'utf-8',
@@ -57,6 +55,8 @@ const readGitLastCommitDate = () => {
 };
 
 const readGitLastPullRequestNumber = () => {
+  const MERGE_PULL_REQUEST_REGEX = /Merge pull request #(\d+)/i;
+  const SQUASH_PULL_REQUEST_REGEX = /\(#(\d+)\)\s*$/;
   try {
     // Use NUL (\x00) as separator so multi-line commit bodies don't split incorrectly
     const logOutput = (execFileSync(
@@ -105,7 +105,9 @@ const branchName =
 
 const versionId = prNumber
   ? `PR #${prNumber} · ${shortCommitSha}`
-  : `${branchName ?? 'unknown-branch'} · ${shortCommitSha}`;
+  : branchName
+    ? `${branchName} · ${shortCommitSha}`
+    : shortCommitSha;
 
 // ── last updated ───────────────────────────────────────────────────────────
 
