@@ -10,43 +10,7 @@ interface Props {
 const { title, description = 'Personal portfolio — projects & photography' } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 
-const [projects, photos] = await Promise.all([
-  getCollection('projects', ({ data }) => !data.draft),
-  getCollection('photos', ({ data }) => !data.draft),
-]);
-
-const allEntries = [...projects, ...photos];
-const latestUpdateTimestamp = allEntries.length
-  ? allEntries
-      .map((entry) => entry.data.date.getTime())
-      .reduce((latest, current) => Math.max(latest, current), 0)
-  : null;
-
-const latestUpdate = latestUpdateTimestamp ? new Date(latestUpdateTimestamp) : null;
-
-const formatTimeSince = (date: Date | null) => {
-  if (!date) return 'no updates yet';
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
-
-  if (diffDays < 1) return 'today';
-  if (diffDays === 1) return '1 day ago';
-  if (diffDays < 30) return `${diffDays} days ago`;
-
-  const diffMonths = Math.max(
-    0,
-    (now.getFullYear() - date.getFullYear()) * 12 +
-      (now.getMonth() - date.getMonth()) -
-      (now.getDate() < date.getDate() ? 1 : 0),
-  );
-  if (diffMonths === 0) return `${diffDays} days ago`;
-  if (diffMonths === 1) return '1 month ago';
-  if (diffMonths < 12) return `${diffMonths} months ago`;
-
-  const diffYears = Math.floor(diffMonths / 12);
-  return diffYears === 1 ? '1 year ago' : `${diffYears} years ago`;
-};
+// ── git helpers ────────────────────────────────────────────────────────────
 
 const env = import.meta.env as Record<string, string | undefined>;
 const SHORT_SHA_LENGTH = 7;
@@ -74,7 +38,19 @@ const readGitFullSha = () => {
 const readGitBranch = () => {
   try {
     const branch = execSync('git rev-parse --abbrev-ref HEAD', GIT_EXEC_OPTIONS).trim();
+    // 'HEAD' means detached HEAD state — not a useful display value
+    if (branch === 'HEAD') return undefined;
     return BRANCH_REGEX.test(branch) ? branch : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+const readGitLastCommitDate = () => {
+  try {
+    const ts = execFileSync('git', ['log', '-1', '--format=%ct'], GIT_EXEC_OPTIONS) as string;
+    const epoch = parseInt(ts.trim(), 10);
+    return isNaN(epoch) ? undefined : new Date(epoch * 1000);
   } catch {
     return undefined;
   }
@@ -110,6 +86,8 @@ const readGitLastPullRequestNumber = () => {
   }
 };
 
+// ── version ────────────────────────────────────────────────────────────────
+
 const fullCommitSha = env.CF_PAGES_COMMIT_SHA ?? env.GITHUB_SHA ?? readGitFullSha();
 const shortCommitSha = fullCommitSha?.slice(0, SHORT_SHA_LENGTH) ?? 'unknown';
 
@@ -124,7 +102,52 @@ const branchName =
   env.GITHUB_REF_NAME?.replace(/^refs\/heads\//, '') ??
   readGitBranch();
 
-const versionId = prNumber ? `PR #${prNumber} · ${shortCommitSha}` : `${branchName ?? 'unknown-branch'} · ${shortCommitSha}`;
+const versionId = prNumber
+  ? `PR #${prNumber} · ${shortCommitSha}`
+  : `${branchName ?? 'unknown-branch'} · ${shortCommitSha}`;
+
+// ── last updated ───────────────────────────────────────────────────────────
+
+const [projects, photos] = await Promise.all([
+  getCollection('projects', ({ data }) => !data.draft),
+  getCollection('photos', ({ data }) => !data.draft),
+]);
+
+const allEntries = [...projects, ...photos];
+const contentTimestamps = allEntries.map((entry) => entry.data.date.getTime());
+const gitCommitDate = readGitLastCommitDate();
+const allTimestamps = gitCommitDate
+  ? [...contentTimestamps, gitCommitDate.getTime()]
+  : contentTimestamps;
+const latestUpdateTimestamp = allTimestamps.length
+  ? allTimestamps.reduce((latest, current) => Math.max(latest, current), 0)
+  : null;
+
+const latestUpdate = latestUpdateTimestamp ? new Date(latestUpdateTimestamp) : null;
+
+const formatTimeSince = (date: Date | null) => {
+  if (!date) return 'no updates yet';
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+
+  if (diffDays < 1) return 'today';
+  if (diffDays === 1) return '1 day ago';
+  if (diffDays < 30) return `${diffDays} days ago`;
+
+  const diffMonths = Math.max(
+    0,
+    (now.getFullYear() - date.getFullYear()) * 12 +
+      (now.getMonth() - date.getMonth()) -
+      (now.getDate() < date.getDate() ? 1 : 0),
+  );
+  if (diffMonths === 0) return `${diffDays} days ago`;
+  if (diffMonths === 1) return '1 month ago';
+  if (diffMonths < 12) return `${diffMonths} months ago`;
+
+  const diffYears = Math.floor(diffMonths / 12);
+  return diffYears === 1 ? '1 year ago' : `${diffYears} years ago`;
+};
 ---
 <!doctype html>
 <html lang="en">
