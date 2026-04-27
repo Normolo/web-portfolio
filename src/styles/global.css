@@ -16,6 +16,19 @@
   --max-w: 1120px;
 }
 
+html[data-theme="light"] {
+  --bg: #f8f8f8;
+  --surface: #ffffff;
+  --border: #d1d1d1;
+  --text: #1a1a1a;
+  --muted: #666666;
+  --accent: #0d9488;
+  --accent2: #be185d;
+  --surface-fallback: #f0f0f0;
+  --surface-fallback-hover: #e8e8e8;
+  --surface-fallback-active: #e0e0e0;
+}
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -87,7 +100,6 @@ nav a:hover, nav a[aria-current="page"] {
   color: var(--text);
   box-shadow: 0 0 0 0 rgba(110, 231, 183, 0);
   transition: border-color 0.15s, color 0.15s, transform 0.15s, background 0.15s, box-shadow 0.15s;
-  justify-self: center;
 }
 
 .nav-home svg {
@@ -115,6 +127,70 @@ nav a:hover, nav a[aria-current="page"] {
 nav a:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px rgba(110, 231, 183, 0.45);
+}
+
+/* ── Header centre cluster ── */
+.header-center {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-self: center;
+}
+
+/* ── Theme toggle ── */
+.theme-toggle {
+  width: 2.1rem;
+  height: 2.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-fallback);
+  background: color-mix(in oklab, var(--surface) 90%, black);
+  color: var(--text);
+  box-shadow: 0 0 0 0 rgba(110, 231, 183, 0);
+  transition: border-color 0.15s, color 0.15s, transform 0.15s, background 0.15s, box-shadow 0.15s;
+  cursor: pointer;
+  padding: 0;
+  appearance: none;
+  font-family: inherit;
+}
+
+.theme-toggle svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+  background: var(--surface-fallback-hover);
+  background: color-mix(in oklab, var(--surface) 76%, black);
+}
+
+.theme-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(110, 231, 183, 0.45);
+}
+
+/* Sun icon visible in dark mode (default); moon icon visible in light mode */
+.icon-sun { display: block; }
+.icon-moon { display: none; }
+html[data-theme="light"] .icon-sun { display: none; }
+html[data-theme="light"] .icon-moon { display: block; }
+
+/* Light-mode overrides for nav hover/focus */
+html[data-theme="light"] nav a:hover,
+html[data-theme="light"] nav a[aria-current="page"] {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+html[data-theme="light"] .nav-home:focus-visible,
+html[data-theme="light"] nav a:focus-visible,
+html[data-theme="light"] .theme-toggle:focus-visible {
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.45);
 }
 
 main {
@@ -408,7 +484,7 @@ pre code { background: none; padding: 0; }
     justify-self: start;
   }
 
-  .nav-home {
+  .header-center {
     justify-self: end;
   }
 }
