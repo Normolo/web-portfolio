@@ -186,16 +186,35 @@ const formatTimeSince = (date: Date | null) => {
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <style set:html={globalCss}></style>
+    <script is:inline>
+      (function () {
+        var t = localStorage.getItem('theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      })();
+    </script>
   </head>
   <body>
     <header>
       <a href="/" class="logo">Benjamin Borg</a>
-      <a href="/" class="nav-home" aria-label="Home" aria-current={Astro.url.pathname === '/' ? 'page' : undefined}>
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M3 10.8L12 3l9 7.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M6.5 10.2V21h11V10.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </a>
+      <div class="header-center">
+        <a href="/" class="nav-home" aria-label="Home" aria-current={Astro.url.pathname === '/' ? 'page' : undefined}>
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M3 10.8L12 3l9 7.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M6.5 10.2V21h11V10.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </a>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+          <!-- Sun: shown in dark mode → click to go light -->
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.8"/>
+            <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+          </svg>
+          <!-- Moon: shown in light mode → click to go dark -->
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+      </div>
       <nav>
         <a href="/projects" aria-current={Astro.url.pathname.startsWith('/projects') ? 'page' : undefined}>Projects</a>
         <a href="/skills" aria-current={Astro.url.pathname.startsWith('/skills') ? 'page' : undefined}>Skills</a>
@@ -211,5 +230,50 @@ const formatTimeSince = (date: Date | null) => {
     <footer>
       <p>© {new Date().getFullYear()} Benjamin Borg · Updated {formatTimeSince(latestUpdate)} · Version {versionId}</p>
     </footer>
+    <script is:inline>
+      (function () {
+        var btn = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+
+        function systemTheme() {
+          return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+
+        function effectiveTheme() {
+          return root.dataset.theme || systemTheme();
+        }
+
+        function sync() {
+          var isOverride = !!root.dataset.theme;
+          var effective = effectiveTheme();
+          if (isOverride) {
+            btn.setAttribute('aria-label', 'Switch to system theme');
+          } else {
+            btn.setAttribute('aria-label', effective === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+          }
+        }
+
+        sync();
+
+        btn.addEventListener('click', function () {
+          if (root.dataset.theme) {
+            // Currently overriding → return to auto/system
+            delete root.dataset.theme;
+            localStorage.removeItem('theme');
+          } else {
+            // Currently auto → override to opposite of system
+            var override = systemTheme() === 'dark' ? 'light' : 'dark';
+            root.dataset.theme = override;
+            localStorage.setItem('theme', override);
+          }
+          sync();
+        });
+
+        // Keep aria-label in sync if system preference changes while in auto mode
+        window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function () {
+          if (!root.dataset.theme) sync();
+        });
+      })();
+    </script>
   </body>
 </html>
