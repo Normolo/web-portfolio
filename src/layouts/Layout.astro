@@ -1,7 +1,7 @@
 ---
 import globalCss from '../styles/global.css?raw';
 import { getCollection } from 'astro:content';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 
 interface Props {
   title: string;
@@ -10,16 +10,144 @@ interface Props {
 const { title, description = 'Personal portfolio — projects & photography' } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 
+// ── git helpers ────────────────────────────────────────────────────────────
+
+const env = import.meta.env as Record<string, string | undefined>;
+const SHORT_SHA_LENGTH = 7;
+const MAX_COMMITS_TO_SCAN = 20;
+const SHA_REGEX = /^[0-9a-f]{40}$/i;
+const BRANCH_REGEX = /^[A-Za-z0-9._/-]+$/;
+const GIT_EXEC_OPTIONS = {
+  cwd: process.cwd(),
+  encoding: 'utf-8',
+  stdio: ['ignore', 'pipe', 'pipe'] as const,
+  timeout: 2000,
+};
+
+const readGitFullSha = () => {
+  try {
+    const sha = (execFileSync('git', ['rev-parse', 'HEAD'], GIT_EXEC_OPTIONS) as string).trim();
+    return SHA_REGEX.test(sha) ? sha : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+const readGitBranch = () => {
+  try {
+    const branch = (execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], GIT_EXEC_OPTIONS) as string).trim();
+    // 'HEAD' means detached HEAD state — not a useful display value
+    if (branch === 'HEAD') return undefined;
+    return BRANCH_REGEX.test(branch) ? branch : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+const readGitLastCommitDate = () => {
+  try {
+    const ts = (execFileSync('git', ['log', '-1', '--format=%ct'], GIT_EXEC_OPTIONS) as string).trim();
+    const epoch = parseInt(ts, 10);
+    return isNaN(epoch) ? undefined : new Date(epoch * 1000);
+  } catch {
+    return undefined;
+  }
+};
+
+const readGitLastPullRequestNumber = () => {
+  const MERGE_PULL_REQUEST_REGEX = /Merge pull request #(\d+)/i;
+  const SQUASH_PULL_REQUEST_REGEX = /\(#(\d+)\)\s*$/;
+  try {
+    // Use NUL (\x00) as separator so multi-line commit bodies don't split incorrectly
+    const logOutput = (execFileSync(
+      'git',
+      ['log', '-n', String(MAX_COMMITS_TO_SCAN), '--pretty=%B%x00'],
+      GIT_EXEC_OPTIONS,
+    ) as string);
+    const commits = logOutput
+      .split('\u0000')
+      .map((message) => message.trim())
+      .filter(Boolean);
+
+    const extractPullRequestNumber = (message: string) => {
+      const mergeMatch = message.match(MERGE_PULL_REQUEST_REGEX);
+      if (mergeMatch?.[1]) return mergeMatch[1];
+
+      const squashMatch = message.match(SQUASH_PULL_REQUEST_REGEX);
+      return squashMatch?.[1];
+    };
+
+    for (const message of commits) {
+      const pullRequestNumber = extractPullRequestNumber(message);
+      if (pullRequestNumber) return pullRequestNumber;
+    }
+    return undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+// ── version ────────────────────────────────────────────────────────────────
+
+const fullCommitSha = env.CF_PAGES_COMMIT_SHA ?? env.GITHUB_SHA ?? readGitFullSha();
+const shortCommitSha = fullCommitSha?.slice(0, SHORT_SHA_LENGTH) ?? 'unknown';
+
+const prNumber =
+  env.CF_PAGES_PULL_REQUEST_ID ??
+  env.GITHUB_REF?.match(/^refs\/pull\/(\d+)\/(?:head|merge)$/)?.[1] ??
+  readGitLastPullRequestNumber();
+
+const branchName =
+  env.CF_PAGES_BRANCH ??
+  env.GITHUB_HEAD_REF ??
+  env.GITHUB_REF_NAME?.replace(/^refs\/heads\//, '') ??
+  readGitBranch();
+
+const GITHUB_REPO_REGEX = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
+const GITHUB_PR_NUMBER_REGEX = /^\d+$/;
+const KNOWN_GITHUB_REPOSITORY = 'Normolo/web-portfolio';
+
+const fetchGitHubPrIsDraft = async (pr: string): Promise<boolean> => {
+  if (!GITHUB_PR_NUMBER_REGEX.test(pr)) return false;
+  try {
+    // GITHUB_REPOSITORY is set in GitHub Actions; fall back to the known repo name
+    const repo = env.GITHUB_REPOSITORY ?? KNOWN_GITHUB_REPOSITORY;
+    if (!GITHUB_REPO_REGEX.test(repo)) return false;
+    const resp = await fetch(`https://api.github.com/repos/${repo}/pulls/${pr}`, {
+      headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'web-portfolio-build' },
+    });
+    if (!resp.ok) return false;
+    const data = (await resp.json()) as { draft?: boolean };
+    return data.draft === true;
+  } catch {
+    return false;
+  }
+};
+
+const prIsDraft = prNumber ? await fetchGitHubPrIsDraft(prNumber) : false;
+
+const versionId = prNumber
+  ? `PR #${prNumber}${prIsDraft ? ' (Draft)' : ''} · ${shortCommitSha}`
+  : branchName
+    ? `${branchName} · ${shortCommitSha}`
+    : shortCommitSha;
+
+// ── last updated ───────────────────────────────────────────────────────────
+
 const [projects, photos] = await Promise.all([
   getCollection('projects', ({ data }) => !data.draft),
   getCollection('photos', ({ data }) => !data.draft),
 ]);
 
 const allEntries = [...projects, ...photos];
-const latestUpdateTimestamp = allEntries.length
-  ? allEntries
-      .map((entry) => entry.data.date.getTime())
-      .reduce((latest, current) => Math.max(latest, current), 0)
+const contentTimestamps = allEntries.map((entry) => entry.data.date.getTime());
+const gitCommitDate = readGitLastCommitDate();
+const allTimestamps = [
+  ...contentTimestamps,
+  ...(gitCommitDate ? [gitCommitDate.getTime()] : []),
+];
+const latestUpdateTimestamp = allTimestamps.length
+  ? allTimestamps.reduce((latest, current) => Math.max(latest, current), 0)
   : null;
 
 const latestUpdate = latestUpdateTimestamp ? new Date(latestUpdateTimestamp) : null;
@@ -47,50 +175,6 @@ const formatTimeSince = (date: Date | null) => {
   const diffYears = Math.floor(diffMonths / 12);
   return diffYears === 1 ? '1 year ago' : `${diffYears} years ago`;
 };
-
-const env = import.meta.env as Record<string, string | undefined>;
-const SHORT_SHA_LENGTH = 7;
-const SHA_REGEX = /^[0-9a-f]{40}$/i;
-const BRANCH_REGEX = /^[A-Za-z0-9._/-]+$/;
-const GIT_EXEC_OPTIONS = {
-  cwd: process.cwd(),
-  encoding: 'utf-8',
-  stdio: ['ignore', 'pipe', 'pipe'] as const,
-  timeout: 2000,
-};
-
-const readGitFullSha = () => {
-  try {
-    const sha = execSync('git rev-parse HEAD', GIT_EXEC_OPTIONS).trim();
-    return SHA_REGEX.test(sha) ? sha : undefined;
-  } catch {
-    return undefined;
-  }
-};
-
-const readGitBranch = () => {
-  try {
-    const branch = execSync('git rev-parse --abbrev-ref HEAD', GIT_EXEC_OPTIONS).trim();
-    return BRANCH_REGEX.test(branch) ? branch : undefined;
-  } catch {
-    return undefined;
-  }
-};
-
-const fullCommitSha = env.CF_PAGES_COMMIT_SHA ?? env.GITHUB_SHA ?? readGitFullSha();
-const shortCommitSha = fullCommitSha?.slice(0, SHORT_SHA_LENGTH) ?? 'unknown';
-
-const prNumber =
-  env.CF_PAGES_PULL_REQUEST_ID ??
-  env.GITHUB_REF?.match(/^refs\/pull\/(\d+)\/(?:head|merge)$/)?.[1];
-
-const branchName =
-  env.CF_PAGES_BRANCH ??
-  env.GITHUB_HEAD_REF ??
-  env.GITHUB_REF_NAME?.replace(/^refs\/heads\//, '') ??
-  readGitBranch();
-
-const versionId = prNumber ? `PR #${prNumber} · ${shortCommitSha}` : `${branchName ?? 'unknown-branch'} · ${shortCommitSha}`;
 ---
 <!doctype html>
 <html lang="en">
