@@ -234,16 +234,44 @@ const formatTimeSince = (date: Date | null) => {
       (function () {
         var btn = document.getElementById('theme-toggle');
         var root = document.documentElement;
-        function sync() {
-          var isLight = root.dataset.theme === 'light';
-          btn.setAttribute('aria-label', isLight ? 'Switch to dark mode' : 'Switch to light mode');
+
+        function systemTheme() {
+          return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
         }
+
+        function effectiveTheme() {
+          return root.dataset.theme || systemTheme();
+        }
+
+        function sync() {
+          var isOverride = !!root.dataset.theme;
+          var effective = effectiveTheme();
+          if (isOverride) {
+            btn.setAttribute('aria-label', 'Switch to system theme');
+          } else {
+            btn.setAttribute('aria-label', effective === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+          }
+        }
+
         sync();
+
         btn.addEventListener('click', function () {
-          var next = root.dataset.theme === 'light' ? 'dark' : 'light';
-          root.dataset.theme = next;
-          localStorage.setItem('theme', next);
+          if (root.dataset.theme) {
+            // Currently overriding → return to auto/system
+            delete root.dataset.theme;
+            localStorage.removeItem('theme');
+          } else {
+            // Currently auto → override to opposite of system
+            var override = systemTheme() === 'dark' ? 'light' : 'dark';
+            root.dataset.theme = override;
+            localStorage.setItem('theme', override);
+          }
           sync();
+        });
+
+        // Keep aria-label in sync if system preference changes while in auto mode
+        window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function () {
+          if (!root.dataset.theme) sync();
         });
       })();
     </script>

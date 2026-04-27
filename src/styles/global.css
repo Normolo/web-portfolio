@@ -29,6 +29,22 @@ html[data-theme="light"] {
   --surface-fallback-active: #e0e0e0;
 }
 
+/* Auto light mode: system preference, unless overridden to dark */
+@media (prefers-color-scheme: light) {
+  html:not([data-theme="dark"]) {
+    --bg: #f8f8f8;
+    --surface: #ffffff;
+    --border: #d1d1d1;
+    --text: #1a1a1a;
+    --muted: #666666;
+    --accent: #0d9488;
+    --accent2: #be185d;
+    --surface-fallback: #f0f0f0;
+    --surface-fallback-hover: #e8e8e8;
+    --surface-fallback-active: #e0e0e0;
+  }
+}
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -175,22 +191,41 @@ nav a:focus-visible {
   box-shadow: 0 0 0 2px rgba(110, 231, 183, 0.45);
 }
 
-/* Sun icon visible in dark mode (default); moon icon visible in light mode */
+/* Sun icon visible when theme is dark; moon when light */
+/* Explicit overrides */
 .icon-sun { display: block; }
 .icon-moon { display: none; }
 html[data-theme="light"] .icon-sun { display: none; }
 html[data-theme="light"] .icon-moon { display: block; }
+/* Auto light mode (system light, no dark override) */
+@media (prefers-color-scheme: light) {
+  html:not([data-theme="dark"]) .icon-sun { display: none; }
+  html:not([data-theme="dark"]) .icon-moon { display: block; }
+}
 
 /* Light-mode overrides for nav hover/focus */
 html[data-theme="light"] nav a:hover,
 html[data-theme="light"] nav a[aria-current="page"] {
   background: rgba(0, 0, 0, 0.06);
 }
+@media (prefers-color-scheme: light) {
+  html:not([data-theme="dark"]) nav a:hover,
+  html:not([data-theme="dark"]) nav a[aria-current="page"] {
+    background: rgba(0, 0, 0, 0.06);
+  }
+}
 
 html[data-theme="light"] .nav-home:focus-visible,
 html[data-theme="light"] nav a:focus-visible,
 html[data-theme="light"] .theme-toggle:focus-visible {
   box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.45);
+}
+@media (prefers-color-scheme: light) {
+  html:not([data-theme="dark"]) .nav-home:focus-visible,
+  html:not([data-theme="dark"]) nav a:focus-visible,
+  html:not([data-theme="dark"]) .theme-toggle:focus-visible {
+    box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.45);
+  }
 }
 
 main {
