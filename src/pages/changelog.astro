@@ -6,7 +6,6 @@ interface ChangelogEntry {
   number: number;
   title: string;
   merged_at: string;
-  author: string;
   url: string;
 }
 
@@ -34,7 +33,6 @@ const formatDate = (iso: string) =>
       <li class="changelog-item card">
         <div class="changelog-meta">
           <span class="changelog-date">{formatDate(pr.merged_at)}</span>
-          <span class="changelog-author">by {pr.author}</span>
         </div>
         <h2 class="changelog-title">
           <a href={pr.url} target="_blank" rel="noopener noreferrer">
@@ -71,11 +69,6 @@ const formatDate = (iso: string) =>
   }
 
   .changelog-date {
-    font-size: 0.8rem;
-    color: var(--muted);
-  }
-
-  .changelog-author {
     font-size: 0.8rem;
     color: var(--muted);
   }

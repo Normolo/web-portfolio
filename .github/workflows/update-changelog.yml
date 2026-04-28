@@ -25,7 +25,7 @@ jobs:
             --state merged \
             --limit 10 \
             --json number,title,mergedAt,author,url \
-            --jq '[.[] | {number: .number, title: .title, merged_at: .mergedAt, author: .author.login, url: .url}]' \
+            --jq '[.[] | {number: .number, title: .title, merged_at: .mergedAt, url: .url}]' \
             > src/data/changelog.json
 
       - name: Commit and push if changed
