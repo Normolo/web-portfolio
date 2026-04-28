@@ -1,0 +1,185 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+interface PullRequest {
+  number: number;
+  title: string;
+  body: string | null;
+  html_url: string;
+  merged_at: string;
+  user: { login: string; html_url: string } | null;
+  labels: { name: string; color: string }[];
+}
+
+const REPO = 'Normolo/web-portfolio';
+const MAX_PRS = 10;
+
+const formatDate = (iso: string) => {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+};
+
+let pullRequests: PullRequest[] = [];
+let fetchError: string | null = null;
+
+try {
+  const resp = await fetch(
+    `https://api.github.com/repos/${REPO}/pulls?state=closed&sort=updated&direction=desc&per_page=30`,
+    {
+      headers: {
+        Accept: 'application/vnd.github+json',
+        'User-Agent': 'web-portfolio-build',
+        ...(import.meta.env.GITHUB_TOKEN
+          ? { Authorization: `Bearer ${import.meta.env.GITHUB_TOKEN}` }
+          : {}),
+      },
+    },
+  );
+  if (!resp.ok) {
+    fetchError = `GitHub API responded with ${resp.status}`;
+  } else {
+    const all = (await resp.json()) as PullRequest[];
+    pullRequests = all.filter((pr) => pr.merged_at).slice(0, MAX_PRS);
+  }
+} catch (err) {
+  fetchError = err instanceof Error ? err.message : 'Unknown error';
+}
+---
+
+<Layout title="Changelog | Benjamin Borg" description="A history of recent changes and improvements to this portfolio.">
+  <h1>Changelog</h1>
+  <p class="subtitle" style="color: var(--muted); margin-top: 0.25rem; margin-bottom: 2rem;">
+    The last {MAX_PRS} merged updates to this site, sourced automatically from GitHub.
+  </p>
+
+  {fetchError && (
+    <section class="card" style="margin-bottom: 1.5rem; border-color: #f87171; color: var(--muted);">
+      <p style="margin: 0;">Could not load changelog: {fetchError}</p>
+    </section>
+  )}
+
+  {pullRequests.length === 0 && !fetchError && (
+    <section class="card" style="text-align: center; color: var(--muted);">
+      <p style="margin: 0;">No merged pull requests found yet.</p>
+    </section>
+  )}
+
+  <ol class="changelog-list">
+    {pullRequests.map((pr) => (
+      <li class="changelog-item card">
+        <div class="changelog-meta">
+          <span class="changelog-date">{formatDate(pr.merged_at)}</span>
+          {pr.labels.map((label) => (
+            <span
+              class="tag changelog-label"
+              style={`background: #${label.color}22; border-color: #${label.color}66; color: #${label.color};`}
+            >
+              {label.name}
+            </span>
+          ))}
+        </div>
+        <h2 class="changelog-title">
+          <a href={pr.html_url} target="_blank" rel="noopener noreferrer">
+            {pr.title}
+          </a>
+          <span class="changelog-pr-num">#{pr.number}</span>
+        </h2>
+        {pr.body && pr.body.trim() && (
+          <p class="changelog-body">{pr.body.trim()}</p>
+        )}
+        {pr.user && (
+          <p class="changelog-author">
+            by{' '}
+            <a href={pr.user.html_url} target="_blank" rel="noopener noreferrer">
+              {pr.user.login}
+            </a>
+          </p>
+        )}
+      </li>
+    ))}
+  </ol>
+</Layout>
+
+<style>
+  .changelog-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .changelog-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .changelog-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .changelog-date {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .changelog-label {
+    font-size: 0.72rem;
+  }
+
+  .changelog-title {
+    margin: 0;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .changelog-title a {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .changelog-title a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  .changelog-pr-num {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .changelog-body {
+    margin: 0.25rem 0 0;
+    font-size: 0.88rem;
+    color: var(--muted);
+    white-space: pre-wrap;
+    max-height: 6rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+  }
+
+  .changelog-author {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .changelog-author a {
+    color: var(--muted);
+  }
+
+  .changelog-author a:hover {
+    color: var(--accent);
+  }
+</style>
