@@ -1,87 +1,31 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { execFileSync } from 'node:child_process';
-
-const REPO = 'Normolo/web-portfolio';
-const MAX_PRS = 10;
-const GIT_EXEC_OPTIONS = {
-  cwd: process.cwd(),
-  encoding: 'utf-8',
-  stdio: ['ignore', 'pipe', 'pipe'] as const,
-  timeout: 5000,
-};
+import rawEntries from '../data/changelog.json';
 
 interface ChangelogEntry {
-  number: string;
+  number: number;
   title: string;
-  date: Date;
+  merged_at: string;
   author: string;
   url: string;
 }
 
-const MERGE_PR_REGEX = /^Merge pull request #(\d+)/i;
-const SQUASH_PR_REGEX = /\(#(\d+)\)\s*$/;
+const MAX_PRS = 10;
+const pullRequests = (rawEntries as ChangelogEntry[]).slice(0, MAX_PRS);
 
-const readPullRequestHistory = (max: number): ChangelogEntry[] => {
-  try {
-    // Fields: subject \x00 body \x00 unix-timestamp \x00 author-name, records separated by \x01
-    const output = execFileSync(
-      'git',
-      ['log', '-n', '200', '--pretty=%s%x00%b%x00%ct%x00%an%x01'],
-      GIT_EXEC_OPTIONS,
-    ) as string;
-
-    const entries: ChangelogEntry[] = [];
-    const seen = new Set<string>();
-
-    for (const record of output.split('\x01')) {
-      const trimmed = record.trim();
-      if (!trimmed) continue;
-      const [subject, body, ctStr, author] = trimmed.split('\x00');
-
-      const mergeMatch = subject?.match(MERGE_PR_REGEX);
-      const squashMatch = subject?.match(SQUASH_PR_REGEX);
-      const prNum = mergeMatch?.[1] ?? squashMatch?.[1];
-      if (!prNum || seen.has(prNum)) continue;
-      seen.add(prNum);
-
-      // Merge commits: real title is first line of body; squash: strip trailing (#N) from subject
-      const title = mergeMatch
-        ? (body?.trim().split('\n')[0] || subject)
-        : subject?.replace(SQUASH_PR_REGEX, '').trim();
-
-      const epoch = parseInt(ctStr ?? '', 10);
-      entries.push({
-        number: prNum,
-        title: title || `PR #${prNum}`,
-        date: isNaN(epoch) ? new Date() : new Date(epoch * 1000),
-        author: author?.trim() || 'Unknown',
-        url: `https://github.com/${REPO}/pull/${prNum}`,
-      });
-
-      if (entries.length >= max) break;
-    }
-    return entries;
-  } catch {
-    return [];
-  }
-};
-
-const formatDate = (date: Date) =>
-  date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-
-const pullRequests = readPullRequestHistory(MAX_PRS);
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 ---
 
 <Layout title="Changelog | Benjamin Borg" description="A history of recent changes and improvements to this portfolio.">
   <h1>Changelog</h1>
   <p class="subtitle" style="color: var(--muted); margin-top: 0.25rem; margin-bottom: 2rem;">
-    The last {MAX_PRS} merged updates to this site, pulled from git history on every deploy.
+    The last {MAX_PRS} merged updates to this site, sourced automatically from GitHub.
   </p>
 
   {pullRequests.length === 0 && (
     <section class="card" style="text-align: center; color: var(--muted);">
-      <p style="margin: 0;">No merged pull requests found in git history yet.</p>
+      <p style="margin: 0;">No merged pull requests found yet.</p>
     </section>
   )}
 
@@ -89,7 +33,7 @@ const pullRequests = readPullRequestHistory(MAX_PRS);
     {pullRequests.map((pr) => (
       <li class="changelog-item card">
         <div class="changelog-meta">
-          <span class="changelog-date">{formatDate(pr.date)}</span>
+          <span class="changelog-date">{formatDate(pr.merged_at)}</span>
           <span class="changelog-author">by {pr.author}</span>
         </div>
         <h2 class="changelog-title">
