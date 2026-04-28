@@ -1,0 +1,107 @@
+---
+import Layout from '../layouts/Layout.astro';
+import rawEntries from '../data/changelog.json';
+
+interface ChangelogEntry {
+  number: number;
+  title: string;
+  merged_at: string;
+  author: string;
+  url: string;
+}
+
+const MAX_PRS = 10;
+const pullRequests = (rawEntries as ChangelogEntry[]).slice(0, MAX_PRS);
+
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+---
+
+<Layout title="Changelog | Benjamin Borg" description="A history of recent changes and improvements to this portfolio.">
+  <h1>Changelog</h1>
+  <p class="subtitle" style="color: var(--muted); margin-top: 0.25rem; margin-bottom: 2rem;">
+    The last {MAX_PRS} merged updates to this site, sourced automatically from GitHub.
+  </p>
+
+  {pullRequests.length === 0 && (
+    <section class="card" style="text-align: center; color: var(--muted);">
+      <p style="margin: 0;">No merged pull requests found yet.</p>
+    </section>
+  )}
+
+  <ol class="changelog-list">
+    {pullRequests.map((pr) => (
+      <li class="changelog-item card">
+        <div class="changelog-meta">
+          <span class="changelog-date">{formatDate(pr.merged_at)}</span>
+          <span class="changelog-author">by {pr.author}</span>
+        </div>
+        <h2 class="changelog-title">
+          <a href={pr.url} target="_blank" rel="noopener noreferrer">
+            {pr.title}
+          </a>
+          <span class="changelog-pr-num">#{pr.number}</span>
+        </h2>
+      </li>
+    ))}
+  </ol>
+</Layout>
+
+<style>
+  .changelog-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .changelog-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .changelog-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .changelog-date {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .changelog-author {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .changelog-title {
+    margin: 0;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .changelog-title a {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .changelog-title a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  .changelog-pr-num {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 400;
+  }
+</style>
