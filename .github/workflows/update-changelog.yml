@@ -37,5 +37,16 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/data/changelog.json
-          git commit -m "chore: update changelog.json"
+          # Propagate the PR number from the triggering commit so the footer
+          # version logic can still resolve it from a shallow clone.
+          TRIGGER_MSG="${{ github.event.head_commit.message }}"
+          PR_NUM=$(echo "$TRIGGER_MSG" | grep -oP 'Merge pull request #\K\d+' || true)
+          if [ -z "$PR_NUM" ]; then
+            PR_NUM=$(echo "$TRIGGER_MSG" | grep -oP '\(#\K\d+(?=\)\s*$)' || true)
+          fi
+          if [ -n "$PR_NUM" ]; then
+            git commit -m "chore: update changelog.json (#$PR_NUM)"
+          else
+            git commit -m "chore: update changelog.json"
+          fi
           git push
