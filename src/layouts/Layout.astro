@@ -2,6 +2,7 @@
 import globalCss from '../styles/global.css?raw';
 import { getCollection } from 'astro:content';
 import { execFileSync } from 'node:child_process';
+import { PROFILE_PHOTO_SRC } from '../lib/site';
 
 interface Props {
   title: string;
@@ -209,6 +210,7 @@ const formatTimeSince = (date: Date | null) => {
     <link rel="canonical" href={canonical} />
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href={PROFILE_PHOTO_SRC} />
     <style set:html={globalCss}></style>
     <script is:inline>
       (function () {
