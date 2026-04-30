@@ -4,6 +4,7 @@
   "description": "Personal portfolio — projects & photography",
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "node scripts/generate-favicon.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "photos:import": "node scripts/import-local-photos.mjs",
