@@ -8,7 +8,7 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft))
 
 const projectBannerSrcSets = new Map(
   await Promise.all(
-    projects.map(async (p) => [p.id, p.data.image ? await buildSrcSet(p.data.image, [400, 800]) : undefined] as const),
+    projects.map(async (p) => [p.id, p.data.image ? await buildSrcSet(p.data.image, [400, 600]) : undefined] as const),
   ),
 );
 
@@ -32,7 +32,7 @@ const CARD_BANNER_SIZES = `(min-width: ${CONTENT_MAX_VIEWPORT}px) 396px, (min-wi
               decoding="async"
               srcset={projectBannerSrcSets.get(p.id)}
               sizes={CARD_BANNER_SIZES}
-              style="width: 100%; height: 160px; object-fit: cover; display: block;"
+              style="width: 100%; height: 100px; object-fit: cover; display: block;"
             />
           )}
           <div style="padding: 1.25rem 1.5rem;">

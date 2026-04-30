@@ -209,7 +209,8 @@ const formatTimeSince = (date: Date | null) => {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <title>{title}</title>
-    <link rel="icon" href={PROFILE_PHOTO_SRC} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href={PROFILE_PHOTO_SRC} />
     <style set:html={globalCss}></style>
     <script is:inline>
       (function () {

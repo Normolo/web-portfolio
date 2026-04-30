@@ -29,7 +29,7 @@ const profilePhotoSrcSet = await buildSrcSet(profilePhotoSrc, [120, 240, 360]);
 
 const projectPreviewSrcSets = new Map(
   await Promise.all(
-    projects.map(async (p) => [p.id, p.data.image ? await buildSrcSet(p.data.image, [72, 144, 216]) : undefined] as const),
+    projects.map(async (p) => [p.id, p.data.image ? await buildSrcSet(p.data.image, [48, 96]) : undefined] as const),
   ),
 );
 
@@ -115,10 +115,10 @@ const HOME_PHOTO_SIZES = `(min-width: 960px) 390px, (min-width: 520px) calc(50vw
                   decoding="async"
                   fetchpriority="low"
                   srcset={projectPreviewSrcSets.get(p.id)}
-                  sizes="72px"
-                  width="72"
-                  height="72"
-                  style="width: 72px; height: 72px; object-fit: cover; border-radius: var(--radius); flex-shrink: 0;"
+                  sizes="48px"
+                  width="48"
+                  height="48"
+                  style="width: 48px; height: 48px; object-fit: cover; border-radius: var(--radius); flex-shrink: 0;"
                 />
               )}
               <div>
