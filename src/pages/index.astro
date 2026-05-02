@@ -43,7 +43,19 @@ const homePhotoSrcSets = new Map(
 // At narrower viewports it's full-width, similar to the gallery page.
 const HOME_PHOTO_SIZES = `(min-width: 960px) 390px, (min-width: 520px) calc(50vw - 2rem), calc(100vw - 3rem)`;
 ---
-<Layout title="Benjamin Borg">
+<Layout title="Benjamin Borg" jsonLd={{
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Benjamin Borg',
+  url: 'https://b-borg.net/',
+  image: PROFILE_PHOTO_SRC,
+  jobTitle: 'Mathematics and CS Student',
+  description: 'Benjamin Borg is a Mathematics and CS student working part-time in cutting-edge cybersecurity, aiming to pursue a career in quantum computer security.',
+  sameAs: [
+    'https://www.linkedin.com/in/benjamin-borg-0922722a8/',
+    'https://github.com/Normolo',
+  ],
+}}>
   <div class="hero">
     <img
       class="profile-photo"

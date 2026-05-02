@@ -8,8 +8,9 @@ import changelogEntries from '../data/changelog.json';
 interface Props {
   title: string;
   description?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
-const { title, description = 'Personal portfolio — projects & photography' } = Astro.props;
+const { title, description = 'Personal portfolio — projects & photography', jsonLd } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 
 // ── git helpers ────────────────────────────────────────────────────────────
@@ -119,10 +120,13 @@ const fetchGitHubPrNumberForBranch = async (branch: string): Promise<string | un
     const repo = env.GITHUB_REPOSITORY ?? KNOWN_GITHUB_REPOSITORY;
     if (!GITHUB_REPO_REGEX.test(repo)) return undefined;
     const [owner] = repo.split('/');
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2000);
     const resp = await fetch(
       `https://api.github.com/repos/${repo}/pulls?state=open&head=${owner}:${branch}&per_page=1`,
-      { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'web-portfolio-build' } },
+      { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'web-portfolio-build' }, signal: controller.signal },
     );
+    clearTimeout(timer);
     if (!resp.ok) return undefined;
     const data = (await resp.json()) as Array<{ number: number }>;
     return data[0]?.number?.toString();
@@ -131,11 +135,14 @@ const fetchGitHubPrNumberForBranch = async (branch: string): Promise<string | un
   }
 };
 
+const changelogPrNumber = (changelogEntries as Array<{ number: number }>)[0]?.number?.toString();
+
 const prNumber =
   env.CF_PAGES_PULL_REQUEST_ID ??
   env.GITHUB_REF?.match(/^refs\/pull\/(\d+)\/(?:head|merge)$/)?.[1] ??
   gitLastPr?.number ??
-  (branchName ? await fetchGitHubPrNumberForBranch(branchName) : undefined);
+  (branchName ? await fetchGitHubPrNumberForBranch(branchName) : undefined) ??
+  changelogPrNumber;
 
 const fetchGitHubPrIsDraft = async (pr: string): Promise<boolean> => {
   if (!GITHUB_PR_NUMBER_REGEX.test(pr)) return false;
@@ -143,9 +150,13 @@ const fetchGitHubPrIsDraft = async (pr: string): Promise<boolean> => {
     // GITHUB_REPOSITORY is set in GitHub Actions; fall back to the known repo name
     const repo = env.GITHUB_REPOSITORY ?? KNOWN_GITHUB_REPOSITORY;
     if (!GITHUB_REPO_REGEX.test(repo)) return false;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2000);
     const resp = await fetch(`https://api.github.com/repos/${repo}/pulls/${pr}`, {
       headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'web-portfolio-build' },
+      signal: controller.signal,
     });
+    clearTimeout(timer);
     if (!resp.ok) return false;
     const data = (await resp.json()) as { draft?: boolean };
     return data.draft === true;
@@ -154,7 +165,8 @@ const fetchGitHubPrIsDraft = async (pr: string): Promise<boolean> => {
   }
 };
 
-const prIsDraft = prNumber ? await fetchGitHubPrIsDraft(prNumber) : false;
+// A PR sourced from the changelog is already merged — never a draft.
+const prIsDraft = (prNumber && prNumber !== changelogPrNumber) ? await fetchGitHubPrIsDraft(prNumber) : false;
 
 const versionId = prNumber
   ? `PR #${prNumber}${prIsDraft ? ' (Draft)' : ''} · ${shortCommitSha}`
@@ -198,6 +210,16 @@ const updatedAtIso = latestUpdate ? latestUpdate.toISOString() : null;
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" href={PROFILE_PHOTO_SRC} />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      url: Astro.site?.toString() ?? canonical.origin + '/',
+      name: 'Benjamin Borg',
+      description,
+    })} />
+    {jsonLd && (
+      <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    )}
     <style set:html={globalCss}></style>
     <script is:inline>
       (function () {
