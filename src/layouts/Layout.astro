@@ -45,38 +45,52 @@ const readGitBranch = () => {
   }
 };
 
-const readGitLastPullRequestNumber = () => {
-  const MERGE_PULL_REQUEST_REGEX = /Merge pull request #(\d+)/i;
-  const SQUASH_PULL_REQUEST_REGEX = /\(#(\d+)\)\s*$/;
+const MERGE_PULL_REQUEST_REGEX = /Merge pull request #(\d+)/i;
+const SQUASH_PULL_REQUEST_REGEX = /\(#(\d+)\)\s*$/;
+// Unit Separator (U+001F) is safe to use as a field delimiter in git --pretty format
+// because it cannot appear in a commit timestamp or message body.
+const GIT_FIELD_SEP = '\x1f';
+
+const extractPullRequestNumber = (message: string) => {
+  const mergeMatch = message.match(MERGE_PULL_REQUEST_REGEX);
+  if (mergeMatch?.[1]) return mergeMatch[1];
+  const squashMatch = message.match(SQUASH_PULL_REQUEST_REGEX);
+  return squashMatch?.[1];
+};
+
+// Scan recent commits for PR merge/squash patterns; returns { number, date } for the first hit.
+const readGitLastPullRequest = (): { number: string; date: Date } | undefined => {
   try {
-    // Use NUL (\x00) as separator so multi-line commit bodies don't split incorrectly
+    // Format: <unix timestamp><GIT_FIELD_SEP><body>\x00 per commit
     const logOutput = (execFileSync(
       'git',
-      ['log', '-n', String(MAX_COMMITS_TO_SCAN), '--pretty=%B%x00'],
+      ['log', '-n', String(MAX_COMMITS_TO_SCAN), `--pretty=%ct${GIT_FIELD_SEP}%B\x00`],
       GIT_EXEC_OPTIONS,
     ) as string);
     const commits = logOutput
       .split('\u0000')
-      .map((message) => message.trim())
+      .map((chunk) => chunk.trim())
       .filter(Boolean);
 
-    const extractPullRequestNumber = (message: string) => {
-      const mergeMatch = message.match(MERGE_PULL_REQUEST_REGEX);
-      if (mergeMatch?.[1]) return mergeMatch[1];
-
-      const squashMatch = message.match(SQUASH_PULL_REQUEST_REGEX);
-      return squashMatch?.[1];
-    };
-
-    for (const message of commits) {
-      const pullRequestNumber = extractPullRequestNumber(message);
-      if (pullRequestNumber) return pullRequestNumber;
+    for (const chunk of commits) {
+      const sep = chunk.indexOf(GIT_FIELD_SEP);
+      if (sep === -1) continue;
+      const ts = chunk.slice(0, sep).trim();
+      const message = chunk.slice(sep + GIT_FIELD_SEP.length).trim();
+      const prNumber = extractPullRequestNumber(message);
+      if (prNumber) {
+        const epoch = parseInt(ts, 10);
+        return { number: prNumber, date: new Date(epoch * 1000) };
+      }
     }
     return undefined;
   } catch {
     return undefined;
   }
 };
+
+// Cache the git PR result so we call git only once for both version and last-updated.
+const gitLastPr = readGitLastPullRequest();
 
 // ── version ────────────────────────────────────────────────────────────────
 
@@ -119,7 +133,7 @@ const fetchGitHubPrNumberForBranch = async (branch: string): Promise<string | un
 const prNumber =
   env.CF_PAGES_PULL_REQUEST_ID ??
   env.GITHUB_REF?.match(/^refs\/pull\/(\d+)\/(?:head|merge)$/)?.[1] ??
-  readGitLastPullRequestNumber() ??
+  gitLastPr?.number ??
   (branchName ? await fetchGitHubPrNumberForBranch(branchName) : undefined);
 
 const fetchGitHubPrIsDraft = async (pr: string): Promise<boolean> => {
@@ -156,8 +170,13 @@ const [projects, photos] = await Promise.all([
 
 const allEntries = [...projects, ...photos];
 const contentTimestamps = allEntries.map((entry) => entry.data.date.getTime());
-const latestUpdateTimestamp = contentTimestamps.length
-  ? contentTimestamps.reduce((latest, current) => Math.max(latest, current), 0)
+const lastPrDate = gitLastPr?.date;
+const allTimestamps = [
+  ...contentTimestamps,
+  ...(lastPrDate ? [lastPrDate.getTime()] : []),
+];
+const latestUpdateTimestamp = allTimestamps.length
+  ? allTimestamps.reduce((latest, current) => Math.max(latest, current), 0)
   : null;
 
 const latestUpdate = latestUpdateTimestamp ? new Date(latestUpdateTimestamp) : null;
