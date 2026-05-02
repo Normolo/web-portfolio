@@ -1,5 +1,6 @@
 name = "web-portfolio"
 compatibility_date = "2026-04-18"
+main = "src/worker.ts"
 
 [observability]
 enabled = false
@@ -9,3 +10,4 @@ command = "npm run build"
 
 [assets]
 directory = "./dist"
+binding = "ASSETS"
