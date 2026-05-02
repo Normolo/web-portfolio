@@ -45,16 +45,6 @@ const readGitBranch = () => {
   }
 };
 
-const readGitLastCommitDate = () => {
-  try {
-    const ts = (execFileSync('git', ['log', '-1', '--format=%ct'], GIT_EXEC_OPTIONS) as string).trim();
-    const epoch = parseInt(ts, 10);
-    return isNaN(epoch) ? undefined : new Date(epoch * 1000);
-  } catch {
-    return undefined;
-  }
-};
-
 const readGitLastPullRequestNumber = () => {
   const MERGE_PULL_REQUEST_REGEX = /Merge pull request #(\d+)/i;
   const SQUASH_PULL_REQUEST_REGEX = /\(#(\d+)\)\s*$/;
@@ -166,13 +156,8 @@ const [projects, photos] = await Promise.all([
 
 const allEntries = [...projects, ...photos];
 const contentTimestamps = allEntries.map((entry) => entry.data.date.getTime());
-const gitCommitDate = readGitLastCommitDate();
-const allTimestamps = [
-  ...contentTimestamps,
-  ...(gitCommitDate ? [gitCommitDate.getTime()] : []),
-];
-const latestUpdateTimestamp = allTimestamps.length
-  ? allTimestamps.reduce((latest, current) => Math.max(latest, current), 0)
+const latestUpdateTimestamp = contentTimestamps.length
+  ? contentTimestamps.reduce((latest, current) => Math.max(latest, current), 0)
   : null;
 
 const latestUpdate = latestUpdateTimestamp ? new Date(latestUpdateTimestamp) : null;
