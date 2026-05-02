@@ -22,7 +22,7 @@ html[data-theme="light"] {
   --border: #d1d1d1;
   --text: #1a1a1a;
   --muted: #666666;
-  --accent: #0d9488;
+  --accent: #0f766e;
   --accent2: #be185d;
   --surface-fallback: #f0f0f0;
   --surface-fallback-hover: #e8e8e8;
@@ -37,7 +37,7 @@ html[data-theme="light"] {
     --border: #d1d1d1;
     --text: #1a1a1a;
     --muted: #666666;
-    --accent: #0d9488;
+    --accent: #0f766e;
     --accent2: #be185d;
     --surface-fallback: #f0f0f0;
     --surface-fallback-hover: #e8e8e8;

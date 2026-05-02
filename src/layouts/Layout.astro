@@ -3,6 +3,7 @@ import globalCss from '../styles/global.css?raw';
 import { getCollection } from 'astro:content';
 import { execFileSync } from 'node:child_process';
 import { PROFILE_PHOTO_SRC } from '../lib/site';
+import changelogEntries from '../data/changelog.json';
 
 interface Props {
   title: string;
@@ -45,48 +46,52 @@ const readGitBranch = () => {
   }
 };
 
-const readGitLastCommitDate = () => {
-  try {
-    const ts = (execFileSync('git', ['log', '-1', '--format=%ct'], GIT_EXEC_OPTIONS) as string).trim();
-    const epoch = parseInt(ts, 10);
-    return isNaN(epoch) ? undefined : new Date(epoch * 1000);
-  } catch {
-    return undefined;
-  }
+const MERGE_PULL_REQUEST_REGEX = /Merge pull request #(\d+)/i;
+const SQUASH_PULL_REQUEST_REGEX = /\(#(\d+)\)\s*$/;
+// Unit Separator (U+001F) is safe to use as a field delimiter in git --pretty format
+// because it cannot appear in a commit timestamp or message body.
+const GIT_FIELD_SEP = '\x1f';
+
+const extractPullRequestNumber = (message: string) => {
+  const mergeMatch = message.match(MERGE_PULL_REQUEST_REGEX);
+  if (mergeMatch?.[1]) return mergeMatch[1];
+  const squashMatch = message.match(SQUASH_PULL_REQUEST_REGEX);
+  return squashMatch?.[1];
 };
 
-const readGitLastPullRequestNumber = () => {
-  const MERGE_PULL_REQUEST_REGEX = /Merge pull request #(\d+)/i;
-  const SQUASH_PULL_REQUEST_REGEX = /\(#(\d+)\)\s*$/;
+// Scan recent commits for PR merge/squash patterns; returns { number, date } for the first hit.
+const readGitLastPullRequest = (): { number: string; date: Date } | undefined => {
   try {
-    // Use NUL (\x00) as separator so multi-line commit bodies don't split incorrectly
+    // Format: <unix timestamp><GIT_FIELD_SEP><body>\x00 per commit
     const logOutput = (execFileSync(
       'git',
-      ['log', '-n', String(MAX_COMMITS_TO_SCAN), '--pretty=%B%x00'],
+      ['log', '-n', String(MAX_COMMITS_TO_SCAN), `--pretty=%ct${GIT_FIELD_SEP}%B\x00`],
       GIT_EXEC_OPTIONS,
     ) as string);
     const commits = logOutput
       .split('\u0000')
-      .map((message) => message.trim())
+      .map((chunk) => chunk.trim())
       .filter(Boolean);
 
-    const extractPullRequestNumber = (message: string) => {
-      const mergeMatch = message.match(MERGE_PULL_REQUEST_REGEX);
-      if (mergeMatch?.[1]) return mergeMatch[1];
-
-      const squashMatch = message.match(SQUASH_PULL_REQUEST_REGEX);
-      return squashMatch?.[1];
-    };
-
-    for (const message of commits) {
-      const pullRequestNumber = extractPullRequestNumber(message);
-      if (pullRequestNumber) return pullRequestNumber;
+    for (const chunk of commits) {
+      const sep = chunk.indexOf(GIT_FIELD_SEP);
+      if (sep === -1) continue;
+      const ts = chunk.slice(0, sep).trim();
+      const message = chunk.slice(sep + GIT_FIELD_SEP.length).trim();
+      const prNumber = extractPullRequestNumber(message);
+      if (prNumber) {
+        const epoch = parseInt(ts, 10);
+        return { number: prNumber, date: new Date(epoch * 1000) };
+      }
     }
     return undefined;
   } catch {
     return undefined;
   }
 };
+
+// Cache the git PR result so we call git only once for both version and last-updated.
+const gitLastPr = readGitLastPullRequest();
 
 // ── version ────────────────────────────────────────────────────────────────
 
@@ -129,7 +134,7 @@ const fetchGitHubPrNumberForBranch = async (branch: string): Promise<string | un
 const prNumber =
   env.CF_PAGES_PULL_REQUEST_ID ??
   env.GITHUB_REF?.match(/^refs\/pull\/(\d+)\/(?:head|merge)$/)?.[1] ??
-  readGitLastPullRequestNumber() ??
+  gitLastPr?.number ??
   (branchName ? await fetchGitHubPrNumberForBranch(branchName) : undefined);
 
 const fetchGitHubPrIsDraft = async (pr: string): Promise<boolean> => {
@@ -166,10 +171,14 @@ const [projects, photos] = await Promise.all([
 
 const allEntries = [...projects, ...photos];
 const contentTimestamps = allEntries.map((entry) => entry.data.date.getTime());
-const gitCommitDate = readGitLastCommitDate();
+const lastPrDate = gitLastPr?.date;
+const changelogLatestDate = (changelogEntries as Array<{ merged_at: string }>)[0]?.merged_at
+  ? new Date((changelogEntries as Array<{ merged_at: string }>)[0].merged_at)
+  : undefined;
 const allTimestamps = [
   ...contentTimestamps,
-  ...(gitCommitDate ? [gitCommitDate.getTime()] : []),
+  ...(lastPrDate ? [lastPrDate.getTime()] : []),
+  ...(changelogLatestDate ? [changelogLatestDate.getTime()] : []),
 ];
 const latestUpdateTimestamp = allTimestamps.length
   ? allTimestamps.reduce((latest, current) => Math.max(latest, current), 0)
@@ -177,29 +186,7 @@ const latestUpdateTimestamp = allTimestamps.length
 
 const latestUpdate = latestUpdateTimestamp ? new Date(latestUpdateTimestamp) : null;
 
-const formatTimeSince = (date: Date | null) => {
-  if (!date) return 'no updates yet';
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
-
-  if (diffDays < 1) return 'today';
-  if (diffDays === 1) return '1 day ago';
-  if (diffDays < 30) return `${diffDays} days ago`;
-
-  const diffMonths = Math.max(
-    0,
-    (now.getFullYear() - date.getFullYear()) * 12 +
-      (now.getMonth() - date.getMonth()) -
-      (now.getDate() < date.getDate() ? 1 : 0),
-  );
-  if (diffMonths === 0) return `${diffDays} days ago`;
-  if (diffMonths === 1) return '1 month ago';
-  if (diffMonths < 12) return `${diffMonths} months ago`;
-
-  const diffYears = Math.floor(diffMonths / 12);
-  return diffYears === 1 ? '1 year ago' : `${diffYears} years ago`;
-};
+const updatedAtIso = latestUpdate ? latestUpdate.toISOString() : null;
 ---
 <!doctype html>
 <html lang="en">
@@ -254,7 +241,7 @@ const formatTimeSince = (date: Date | null) => {
     </main>
 
     <footer>
-      <p>© {new Date().getFullYear()} Benjamin Borg · Updated {formatTimeSince(latestUpdate)} · Version {versionId} · <a href="/changelog">Changelog</a></p>
+      <p>© {new Date().getFullYear()} Benjamin Borg · Updated <time id="footer-updated" datetime={updatedAtIso ?? undefined}>–</time> · Version {versionId} · <a href="/changelog">Changelog</a></p>
     </footer>
     <script is:inline>
       (function () {
@@ -299,6 +286,42 @@ const formatTimeSince = (date: Date | null) => {
         window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function () {
           if (!root.dataset.theme) sync();
         });
+      })();
+
+      // ── footer relative time ─────────────────────────────────────────────
+      (function () {
+        var el = document.getElementById('footer-updated');
+        if (!el) return;
+        var iso = el.getAttribute('datetime');
+        if (!iso) { el.textContent = 'no updates yet'; return; }
+        var date = new Date(iso);
+        if (isNaN(date.getTime())) { el.textContent = 'no updates yet'; return; }
+
+        var now = new Date();
+        var diffDays = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 86400000)); // ms per day
+
+        var label;
+        if (diffDays < 1) {
+          label = 'today';
+        } else if (diffDays === 1) {
+          label = '1 day ago';
+        } else if (diffDays < 30) {
+          label = diffDays + ' days ago';
+        } else {
+          var diffMonths = Math.max(0,
+            (now.getFullYear() - date.getFullYear()) * 12 +
+            (now.getMonth() - date.getMonth()) -
+            (now.getDate() < date.getDate() ? 1 : 0)
+          );
+          if (diffMonths === 0) { label = diffDays + ' days ago'; }
+          else if (diffMonths === 1) { label = '1 month ago'; }
+          else if (diffMonths < 12) { label = diffMonths + ' months ago'; }
+          else {
+            var diffYears = Math.floor(diffMonths / 12);
+            label = diffYears === 1 ? '1 year ago' : diffYears + ' years ago';
+          }
+        }
+        el.textContent = label;
       })();
     </script>
   </body>

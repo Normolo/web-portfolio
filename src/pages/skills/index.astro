@@ -8,7 +8,7 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft))
 ---
 <Layout title="Skills — Benjamin Borg" description="A summary of my core skills and focus areas.">
   <h1>Skills</h1>
-  <p style="color: var(--muted); margin-top: 0.25rem;">A short overview of the areas I work in most.</p>
+  <p style="color: var(--muted); margin-top: 0.25rem;">A short overview of the skills and areas I work in most.</p>
 
   {skills.map((skill) => {
     const related = projects.filter(p => p.data.skills.includes(skill.slug));
