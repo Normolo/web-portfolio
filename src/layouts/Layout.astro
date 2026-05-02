@@ -3,6 +3,7 @@ import globalCss from '../styles/global.css?raw';
 import { getCollection } from 'astro:content';
 import { execFileSync } from 'node:child_process';
 import { PROFILE_PHOTO_SRC } from '../lib/site';
+import changelogEntries from '../data/changelog.json';
 
 interface Props {
   title: string;
@@ -171,9 +172,13 @@ const [projects, photos] = await Promise.all([
 const allEntries = [...projects, ...photos];
 const contentTimestamps = allEntries.map((entry) => entry.data.date.getTime());
 const lastPrDate = gitLastPr?.date;
+const changelogLatestDate = (changelogEntries as Array<{ merged_at: string }>)[0]?.merged_at
+  ? new Date((changelogEntries as Array<{ merged_at: string }>)[0].merged_at)
+  : undefined;
 const allTimestamps = [
   ...contentTimestamps,
   ...(lastPrDate ? [lastPrDate.getTime()] : []),
+  ...(changelogLatestDate ? [changelogLatestDate.getTime()] : []),
 ];
 const latestUpdateTimestamp = allTimestamps.length
   ? allTimestamps.reduce((latest, current) => Math.max(latest, current), 0)
