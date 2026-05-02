@@ -134,6 +134,7 @@ const HOME_PHOTO_SIZES = `(min-width: 960px) 390px, (min-width: 520px) calc(50vw
                 />
               )}
               <div>
+                <div class="meta">{p.data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'short' })}</div>
                 <h3 style="margin-top: 0;">{p.data.title}</h3>
                 <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 0.75rem;">{p.data.description}</p>
                 <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">

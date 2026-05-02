@@ -11,6 +11,7 @@ const projects = defineCollection({
     skills: z.array(z.string()).default([]),
     repoUrl: z.string().url().optional(),
     liveUrl: z.string().url().optional(),
+    pdfUrl: z.string().url().optional(),
     image: z.string().url().optional(),
     draft: z.boolean().default(false),
   }),
