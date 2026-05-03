@@ -6,9 +6,7 @@
     "dev": "astro dev",
     "prebuild": "node scripts/generate-favicon.mjs",
     "build": "astro build",
-    "preview": "astro preview",
-    "photos:import": "node scripts/import-local-photos.mjs",
-    "photos:compress": "node scripts/compress-photos.mjs"
+    "preview": "astro preview"
   },
   "repository": {
     "type": "git",
