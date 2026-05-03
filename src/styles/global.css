@@ -503,6 +503,20 @@ pre code { background: none; padding: 0; }
 .section-link.photo:hover { border-color: var(--accent2); color: var(--accent2); }
 .section-link.skill:hover { border-color: var(--accent); color: var(--accent); }
 
+.section-link-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.45rem;
+  background: var(--border);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 500;
+  line-height: 1.4;
+  transition: background 0.15s, color 0.15s;
+}
+.section-link:hover .section-link-badge { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); }
+
 .meta { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.75rem; }
 .prose { max-width: 65ch; }
 

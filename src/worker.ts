@@ -12,6 +12,20 @@ export default {
       return Response.redirect(url.toString(), 301);
     }
 
-    return env.ASSETS.fetch(request);
+    const response = await env.ASSETS.fetch(request);
+
+    // Ensure HTML responses include charset in the Content-Type header.
+    const contentType = response.headers.get('Content-Type');
+    if (contentType && contentType.startsWith('text/html') && !contentType.includes('charset')) {
+      const headers = new Headers(response.headers);
+      headers.set('Content-Type', 'text/html; charset=utf-8');
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers,
+      });
+    }
+
+    return response;
   },
 } satisfies ExportedHandler<Env>;
