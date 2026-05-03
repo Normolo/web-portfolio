@@ -16,9 +16,10 @@ const skillCols = (() => {
   return 4;
 })();
 
-const projects = (await getCollection('projects', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 3);
+const allProjects = (await getCollection('projects', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const projects = allProjects.slice(0, 3);
+const remainingProjects = allProjects.length - projects.length;
 
 const photos = (await getCollection('photos', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
@@ -146,7 +147,7 @@ const HOME_PHOTO_SIZES = `(min-width: 960px) 390px, (min-width: 520px) calc(50vw
         ))}
       </div>
       <p style="margin-top: 1.25rem;">
-        <a class="section-link" href="/projects">All projects →</a>
+        <a class="section-link" href="/projects">All projects {remainingProjects > 0 && <span class="section-link-badge">+{remainingProjects} more</span>} →</a>
       </p>
     </section>
 
