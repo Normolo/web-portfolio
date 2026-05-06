@@ -1,16 +1,97 @@
 ---
 import Layout from '../layouts/Layout.astro';
+const CV_PATH = '/cv/cv.pdf';
 ---
-<Layout title="CV | Benjamin Borg" description="Curriculum Vitae placeholder page.">
-  <h1>Curriculum Vitae</h1>
-  <p class="subtitle" style="color: var(--muted); margin-top: 0.25rem;">
-    My Curriculum Vitae is available as a downloadable PDF.
-  </p>
+<Layout title="CV | Benjamin Borg" description="Curriculum vitae of Benjamin Borg — Mathematics and CS student with a focus on cybersecurity.">
+  <div class="cv-header">
+    <div>
+      <h1>Curriculum Vitae</h1>
+      <p class="subtitle" style="color: var(--muted); margin-top: 0.25rem;">
+        Benjamin Borg · Mathematics &amp; Computer Science
+      </p>
+    </div>
+    <a class="cv-download" href={CV_PATH} download="Benjamin_Borg_CV.pdf">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true">
+        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+      </svg>
+      Download PDF
+    </a>
+  </div>
 
-  <section class="card" style="margin-top: 1.5rem; text-align: center;">
-    <h2 style="margin-top: 0;">PDF placeholder</h2>
-    <p style="color: var(--muted); margin-bottom: 0;">
-      Replace this placeholder with the final CV PDF embed or download link.
+  <div class="cv-embed-wrapper">
+    <iframe
+      class="cv-embed"
+      src={CV_PATH}
+      title="Benjamin Borg — Curriculum Vitae"
+      loading="lazy"
+    ></iframe>
+    <p class="cv-fallback">
+      Your browser cannot display PDFs inline.
+      <a href={CV_PATH} download="Benjamin_Borg_CV.pdf">Download the CV instead</a>.
     </p>
-  </section>
+  </div>
 </Layout>
+
+<style>
+  .cv-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .cv-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    color: var(--accent);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
+    align-self: center;
+  }
+  .cv-download:hover {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    text-decoration: none;
+  }
+
+  .cv-embed-wrapper {
+    position: relative;
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .cv-embed {
+    display: block;
+    width: 100%;
+    height: min(85vh, 1100px);
+    border: none;
+  }
+
+  /* Show fallback only when iframe is invisible (e.g. Firefox PDF blocked) */
+  .cv-fallback {
+    display: none;
+    padding: 2rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 520px) {
+    .cv-embed {
+      height: 75vh;
+    }
+  }
+</style>
